@@ -8,10 +8,11 @@
 
 body {
   margin: 0;
-  background: #0b0b0b;
+  background: #000;
   color: #eaeaea;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
+  overflow: hidden;
 }
 
 .wrap {
@@ -19,12 +20,35 @@ body {
   grid-template-columns: 380px 1fr;
   height: 100vh;
   width: 100vw;
+  background: transparent;
+  position: relative;
+}
+
+/* Add a subtle gradient background for the entire app */
+.wrap::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, 
+    rgba(46, 204, 113, 0.02) 0%, 
+    rgba(52, 152, 219, 0.02) 25%, 
+    rgba(155, 89, 182, 0.02) 50%, 
+    rgba(0, 0, 0, 0.95) 100%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .sidebar {
   border-right: 1px solid #2a2a2a;
   padding: 20px;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 10;
 }
 
 .sidebar h1 {
@@ -42,6 +66,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex: 1;
 }
 
 .trackBtn {
@@ -49,12 +74,60 @@ body {
   border: 1px solid #2a2a2a;
   background: #141414;
   color: #eaeaea;
-  padding: 12px;
+  padding: 14px 16px;
   cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.trackBtn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transition: left 0.5s;
+}
+
+.trackBtn:hover::before {
+  left: 100%;
 }
 
 .trackBtn:hover {
   border-color: #6a6a6a;
+  background: #1a1a1a;
+  transform: translateX(4px);
+}
+
+.trackBtn.active {
+  border-color: #2ecc71;
+  background: linear-gradient(135deg, #1a2a1a, #1e3a29);
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.2);
+}
+
+.trackBtn.active::after {
+  content: "▶";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #2ecc71;
+  font-size: 12px;
+}
+
+.trackBtn.switching {
+  animation: trackSwitch 0.3s ease-out;
+}
+
+@keyframes trackSwitch {
+  0% { transform: scale(1) translateX(4px); }
+  50% { transform: scale(0.95) translateX(8px); opacity: 0.7; }
+  100% { transform: scale(1) translateX(4px); }
 }
 
 .tTitle {
@@ -91,27 +164,1179 @@ body {
 
 .main {
   height: 100vh;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  z-index: 5;
+  background: transparent;
+}
+
+.repl-controls {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 12px;
+  border: 1px solid rgba(42, 42, 42, 0.3);
+  align-items: center;
+  position: relative;
+  z-index: 10;
+}
+
+.repl-controls::before {
+  content: "🎵";
+  font-size: 18px;
+  margin-right: 8px;
+  opacity: 0.7;
+}
+
+.control-btn {
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 10px 18px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+.control-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.control-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.control-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.control-btn:active {
+  transform: translateY(0);
+}
+
+#faultModal,
+.fault-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+}
+
+.fault-dialog {
+  width: 420px;
+  max-width: 90%;
+  background: rgba(20, 20, 20, 0.92);
+  border: 1px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   padding: 20px;
+  text-align: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.fault-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #e74c3c, #f39c12);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.fault-message {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 16px;
+}
+
+.fault-details {
+  font-size: 12px;
+  opacity: 0.7;
+  margin: -8px 0 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 8px;
+  word-break: break-word;
+}
+
+.fault-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-restore {
+  background: linear-gradient(135deg, #1f2a40, #3498db);
+  border-color: #3498db;
+  color: #fff;
+}
+
+.btn-restore:hover {
+  background: linear-gradient(135deg, #25324d, #2980b9);
+  border-color: #2980b9;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.btn-cancel {
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+#btnPlay {
+  background: linear-gradient(135deg, #1e3a29, #2ecc71);
+  border-color: #2ecc71;
+  color: #fff;
+}
+
+#btnPlay:hover {
+  background: linear-gradient(135deg, #264a34, #27ae60);
+  border-color: #27ae60;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+#btnPlay.playing {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3); }
+  50% { box-shadow: 0 4px 20px rgba(46, 204, 113, 0.6); }
+}
+
+#btnStop {
+  background: linear-gradient(135deg, #3a1e1e, #e74c3c);
+  border-color: #e74c3c;
+  color: #fff;
+}
+
+#btnStop:hover {
+  background: linear-gradient(135deg, #4a2626, #c0392b);
+  border-color: #c0392b;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+#btnStop.stopping {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  animation: stopFlash 0.5s;
+}
+
+@keyframes stopFlash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+#btnRestore,
+.restore-btn {
+  background: linear-gradient(135deg, #1f2a40, #3498db);
+  border-color: #3498db;
+  color: #fff;
+}
+
+#btnRestore:hover,
+.restore-btn:hover {
+  background: linear-gradient(135deg, #25324d, #2980b9);
+  border-color: #2980b9;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
 
 /* The embedded Strudel REPL should fill the panel */
 #replMount {
-  height: calc(100vh - 40px);
+  flex: 1;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Important for flex child scrolling */
 }
 
-strudel-repl {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
+/* --- Splash Screen --- */
+.splash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(ellipse at center, #0b0b0b 0%, #000 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  text-align: center;
+  padding: 20px;
   overflow: hidden;
 }
 
-strudel-repl iframe {
+.splash::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(46, 204, 113, 0.1) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.splash h1 {
+  font-size: 48px;
+  margin-bottom: 16px;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, #2ecc71, #3498db, #9b59b6);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 3s ease infinite;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.splash p {
+  font-size: 18px;
+  opacity: 0.7;
+  max-width: 600px;
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+
+.splash-card {
+  max-width: 720px;
+  width: 90%;
+  padding: 28px;
+  border-radius: 16px;
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 2;
+}
+
+.splash-sub {
+  margin: 0 auto 20px;
+  max-width: 640px;
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+.splash-how {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin: 16px auto 24px;
+  text-align: left;
+  max-width: 640px;
+}
+
+.how-item {
+  font-size: 14px;
+  opacity: 0.9;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.splash-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.enterBtn {
+  padding: 18px 36px;
+  font-size: 20px;
+  background: linear-gradient(135deg, #eaeaea, #fff);
+  color: #000;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50px;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(234, 234, 234, 0.3);
+}
+
+.enterBtn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(46, 204, 113, 0.1);
+  transform: translate(-50%, -50%);
+  transition: width 0.8s, height 0.8s;
+}
+
+.enterBtn:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+.enterBtn:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 6px 25px rgba(234, 234, 234, 0.5);
+}
+
+/* --- Editor View --- */
+.editor-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.editor-sidebar {
+  width: 320px;
+  border-right: 1px solid #333;
+  background: rgba(11, 11, 11, 0.85);
+  backdrop-filter: blur(8px);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.editor-sidebar .backBtn {
+  padding: 8px 12px;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  background: rgba(20, 20, 20, 0.85);
+  color: #eaeaea;
+  cursor: pointer;
+}
+.editor-sidebar .backBtn:hover {
+  border-color: #666;
+}
+
+.resizer {
+  width: 4px;
+  background: #2a2a2a;
+  cursor: col-resize;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.resizer:hover, .resizer.resizing {
+  background: #2ecc71;
+}
+
+.editor-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(11, 11, 11, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+.editor-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(11, 11, 11, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+.editor-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-primary, .btn-secondary {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: #eaeaea;
+  color: #000;
+}
+
+.btn-secondary {
+  background: #333;
+  color: #eaeaea;
+}
+
+.editor-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.cm-editor {
+  height: 100%;
+}
+
+/* Forms in Editor Sidebar */
+.form-section {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 12px;
+  opacity: 0.6;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-group input,
+.input-group textarea {
+  width: 100%;
+  background: rgba(20, 20, 20, 0.85);
+  border: 1px solid #2a2a2a;
+  padding: 10px;
+  color: #fff;
+  font-family: inherit;
+  border-radius: 4px;
+}
+
+.editor-sidebar select {
+  width: 100%;
+  background: rgba(20, 20, 20, 0.85);
+  border: 1px solid #2a2a2a;
+  color: #fff;
+  border-radius: 6px;
+}
+
+.input-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: #666;
+}
+
+.adminBtn {
+  margin-top: 20px;
+  padding: 12px;
+  width: 100%;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+  color: #666;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.adminBtn::before {
+  content: "⚙";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.5;
+  transition: all 0.3s;
+}
+
+.adminBtn:hover {
+  background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+  color: #2ecc71;
+  border-color: #2ecc71;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.2);
+}
+
+.adminBtn:hover::before {
+  opacity: 1;
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.sample-edit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sample-edit-item {
+  background: rgba(20, 20, 20, 0.85);
+  border: 1px solid #2a2a2a;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.sample-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.sample-edit-grid .input-group {
+  margin-bottom: 0;
+}
+
+.sample-image-preview {
+  border: 1px solid #222;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #111;
+  min-height: 80px;
+}
+.sample-image-preview img {
+  width: 100%;
+  display: block;
+}
+.sample-image-preview .no-image {
+  padding: 8px;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.sample-edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.btn-small {
+  padding: 2px 6px;
+  font-size: 10px;
+  cursor: pointer;
+  background: #333;
+  color: #eee;
+  border: none;
+}
+
+.btn-add {
+  background: #2ecc71;
+  color: #000;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Sample Info in Player */
+.sample-info-section {
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #2a2a2a;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sample-display-item {
+  background: #141414;
+  padding: 8px;
+  border: 1px solid #222;
+  border-radius: 4px;
+}
+
+.sample-display-name {
+  font-weight: bold;
+  font-size: 13px;
+  color: #2ecc71;
+  margin-bottom: 4px;
+}
+
+.sample-display-desc {
+  font-size: 12px;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.sample-display-sig {
+  font-size: 11px;
+  font-style: italic;
+  opacity: 0.6;
+  border-left: 2px solid #444;
+  padding-left: 6px;
+}
+
+/* --- REPL Fixes --- */
+/* The web component itself is just a controller, hide it from layout */
+strudel-editor {
+  display: none;
+}
+
+/* ULTIMATE TRANSPARENCY - Override any backgrounds */
+#replMount.playing,
+#replMount.playing > div,
+#replMount.playing > div > *,
+#replMount.playing > div > * > *,
+#replMount.playing > div > * > * > * {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Remove any color that might be blocking visuals */
+#replMount.playing > div:not(strudel-editor) {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+}
+
+/* Ensure any Hydra canvas renders behind the code editor */
+canvas {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  border: 0 !important;
-  display: block !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+}
+
+/* DEBUG: Force transparency on everything during playback */
+#replMount.playing > div:not(strudel-editor),
+#replMount.playing > div:not(strudel-editor) * {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* More aggressive targeting for any element that might block visuals */
+#replMount.playing > div:not(strudel-editor) div,
+#replMount.playing > div:not(strudel-editor) div div,
+#replMount.playing > div:not(strudel-editor) div div div,
+#replMount.playing > div:not(strudel-editor) div div div div {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Target body inside iframe if possible */
+#replMount.playing > div:not(strudel-editor) iframe body,
+#replMount.playing > div:not(strudel-editor) iframe body * {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Target the container div created by strudel-editor */
+#replMount {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: none; /* Hidden initially, shown when ready */
+  background: transparent !important;
+}
+
+/* Ensure the main area behind REPL is also transparent */
+.main {
+  height: 100vh;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  z-index: 5;
+  background: transparent !important;
+}
+
+#replMount > div:not(strudel-editor) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
+}
+
+#replMount.visible {
+  display: block;
+}
+
+#replMount.visible > div:not(strudel-editor) {
+  animation: fadeIn 0.6s ease-out;
+  background: transparent !important;
+}
+
+#replMount.visible > div:not(strudel-editor) * {
+  background: transparent !important;
+}
+
+/* Force full transparency during playback */
+#replMount.playing {
+  background: transparent !important;
+}
+
+#replMount.playing > div:not(strudel-editor) {
+  background: transparent !important;
+  border: none !important;
+}
+
+#replMount.playing > div:not(strudel-editor) * {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Subtle playing state indicator */
+#replMount > div:not(strudel-editor).playing::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(46, 204, 113, 0.02) 0%, 
+    rgba(52, 152, 219, 0.02) 50%, 
+    rgba(155, 89, 182, 0.02) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ensure CodeMirror fills the container - TRUE TRANSPARENCY */
+#replMount .cm-editor {
+  height: 100% !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  position: relative;
+  z-index: 2;
+}
+
+#replMount .cm-editor .cm-scroller {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+#replMount .cm-editor .cm-gutter {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#replMount .cm-editor .cm-content {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+#replMount .cm-editor .cm-line {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+#replMount .cm-editor .cm-selectionBackground {
+  background-color: rgba(46, 204, 113, 0.3) !important;
+}
+
+#replMount .cm-editor .cm-cursor {
+  border-left-color: #2ecc71 !important;
+}
+
+/* COMPLETE TRANSPARENCY DURING PLAYBACK - MORE AGGRESSIVE */
+#replMount > div.playing,
+#replMount > div.playing * {
+  background-color: transparent !important;
+  background: transparent !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+}
+
+#replMount > div.playing .cm-editor {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+#replMount > div.playing .cm-editor *,
+#replMount > div.playing .cm-scroller *,
+#replMount > div.playing .cm-content *,
+#replMount > div.playing .cm-line * {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+#replMount > div.playing .cm-gutter {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Target iframe content if it exists */
+#replMount > div.playing iframe,
+#replMount > div.playing iframe * {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+/* Also target any nested divs that might be blocking transparency */
+#replMount > div.playing div,
+#replMount > div.playing div div,
+#replMount > div.playing div div div {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+/* Enhanced code text styling for maximum readability over transparent backgrounds */
+#replMount .cm-editor .cm-line {
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.95),
+    0 2px 6px rgba(0, 0, 0, 0.8),
+    0 0 12px rgba(0, 0, 0, 0.6);
+  filter: contrast(1.1);
+}
+
+#replMount .cm-editor .cm-keyword {
+  color: #3498db !important;
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.95),
+    0 2px 6px rgba(52, 152, 219, 0.4),
+    0 0 12px rgba(52, 152, 219, 0.3);
+  font-weight: 600;
+  filter: contrast(1.2);
+}
+
+#replMount .cm-editor .cm-string {
+  color: #2ecc71 !important;
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.95),
+    0 2px 6px rgba(46, 204, 113, 0.4),
+    0 0 12px rgba(46, 204, 113, 0.3);
+  font-weight: 500;
+  filter: contrast(1.2);
+}
+
+#replMount .cm-editor .cm-number {
+  color: #e74c3c !important;
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.95),
+    0 2px 6px rgba(231, 76, 60, 0.4),
+    0 0 12px rgba(231, 76, 60, 0.3);
+  font-weight: 500;
+  filter: contrast(1.2);
+}
+
+#replMount .cm-editor .cm-comment {
+  color: #95a5a6 !important;
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 2px 6px rgba(149, 165, 166, 0.3),
+    0 0 12px rgba(149, 165, 166, 0.2);
+  font-style: italic;
+  opacity: 0.85;
+}
+
+#replMount .cm-editor .cm-variable {
+  color: #ecf0f1 !important;
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.95),
+    0 2px 6px rgba(0, 0, 0, 0.8),
+    0 0 12px rgba(0, 0, 0, 0.6);
+  filter: contrast(1.1);
+}
+
+#replMount .cm-editor .cm-def {
+  color: #f39c12 !important;
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.95),
+    0 2px 6px rgba(243, 156, 18, 0.4),
+    0 0 12px rgba(243, 156, 18, 0.3);
+  font-weight: 600;
+  filter: contrast(1.2);
+}
+
+#replMount .cm-editor .cm-property {
+  color: #9b59b6 !important;
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.95),
+    0 2px 6px rgba(155, 89, 182, 0.4),
+    0 0 12px rgba(155, 89, 182, 0.3);
+  font-weight: 500;
+  filter: contrast(1.2);
+}
+
+/* When playing, make the gutter even more subtle */
+#replMount > div.playing .cm-gutter {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Line number styling */
+#replMount .cm-editor .cm-lineNumbers .cm-gutterElement {
+  color: rgba(236, 240, 241, 0.4) !important;
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 2px 6px rgba(0, 0, 0, 0.7);
+  font-weight: 500;
+}
+
+/* Active line highlight */
+#replMount .cm-editor .cm-activeLine {
+  background: rgba(46, 204, 113, 0.08) !important;
+  border-left: 2px solid #2ecc71;
+  box-shadow: 
+    0 0 8px rgba(46, 204, 113, 0.2),
+    inset 0 0 16px rgba(46, 204, 113, 0.05);
+}
+
+/* Enhanced cursor visibility */
+#replMount .cm-editor .cm-cursor {
+  border-left: 2px solid #2ecc71 !important;
+  box-shadow: 
+    0 0 4px #2ecc71,
+    0 0 8px rgba(46, 204, 113, 0.4);
+}
+
+/* Selection styling */
+#replMount .cm-editor .cm-selectionBackground {
+  background-color: rgba(46, 204, 113, 0.25) !important;
+  border: 1px solid rgba(46, 204, 113, 0.4);
+  box-shadow: 0 0 8px rgba(46, 204, 113, 0.2);
+}
+
+#editorMount .cm-editor {
+  height: 100% !important;
+}
+
+/* Editor REPL container styling */
+#editorMount {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#editorMount > div:not(strudel-editor) {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  background: rgba(11, 11, 11, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+/* Sample slideshow */
+.sample-slideshow {
+  margin-top: 20px;
+  padding: 12px;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.slideshow-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid #222;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0d0d0d;
+}
+
+.slideshow-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
+
+.slideshow-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
+}
+
+.sample-slideshow .sample-display-name {
+  color: #eaeaea;
+  font-size: 14px;
+  font-weight: 700;
+}
+.sample-slideshow .sample-display-desc {
+  color: #eaeaea;
+  opacity: 0.95;
+  font-size: 12px;
+}
+.sample-slideshow .sample-display-sig {
+  color: #eaeaea;
+  opacity: 0.85;
+  font-size: 12px;
+  font-style: italic;
+}
+.slideshow-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.slide-indicator {
+  opacity: 0.7;
+  font-size: 12px;
+  color: #eaeaea;
+}
+
+.sample-image-preview {
+  border: 1px solid #222;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #111;
+  min-height: 80px;
+}
+.sample-image-preview img {
+  width: 100%;
+  display: block;
+}
+.sample-image-preview .no-image {
+  padding: 8px;
+  font-size: 12px;
+  opacity: 0.6;
+}
+/* Track Loading Overlay */
+.track-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: 8px;
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(46, 204, 113, 0.3);
+  border-top: 3px solid #2ecc71;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #2ecc71;
+  font-size: 18px;
+  opacity: 1;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.loading-subtitle {
+  color: #7f8c8d;
+  font-size: 14px;
+  opacity: 0.8;
+  font-style: italic;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-align: center;
+  max-width: 400px;
 }

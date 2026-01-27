@@ -1,0 +1,146 @@
+{
+  "ambience-sample": [
+    "/samples/ambience-sample/ambient_club.mp3"
+  ],
+  "bass": [
+    "/samples/bass/jungbass.wav"
+  ],
+  "bassoneshots": [
+    "/samples/bassoneshots/AKAS%20B1%20-%20Eb.wav",
+    "/samples/bassoneshots/AKAS%20B10%20-%20Ebm.wav",
+    "/samples/bassoneshots/AKAS%20B11%20-%20Dm.wav",
+    "/samples/bassoneshots/AKAS%20B12%20%20-%20Gbm.wav",
+    "/samples/bassoneshots/AKAS%20B13%20-%20Em.wav",
+    "/samples/bassoneshots/AKAS%20B14%20-%20Fm.wav",
+    "/samples/bassoneshots/AKAS%20B15%20-%20B.wav",
+    "/samples/bassoneshots/AKAS%20B16%20-%20E.wav",
+    "/samples/bassoneshots/AKAS%20B17%20-%20Fm.wav",
+    "/samples/bassoneshots/AKAS%20B18%20-%20Dm.wav",
+    "/samples/bassoneshots/AKAS%20B19%20-%20Fm.wav",
+    "/samples/bassoneshots/AKAS%20B2%20-%20Fm.wav",
+    "/samples/bassoneshots/AKAS%20B20%20-%20Abm.wav",
+    "/samples/bassoneshots/AKAS%20B21%20-%20Fm.wav",
+    "/samples/bassoneshots/AKAS%20B22%20-%20Abm.wav",
+    "/samples/bassoneshots/AKAS%20B23%20-%20D.wav",
+    "/samples/bassoneshots/AKAS%20B24%20-%20Dbm.wav",
+    "/samples/bassoneshots/AKAS%20B25%20-%20GM.wav",
+    "/samples/bassoneshots/AKAS%20B3%20-%20Gm.wav",
+    "/samples/bassoneshots/AKAS%20B4%20-%20G.wav",
+    "/samples/bassoneshots/AKAS%20B5%20-%20Gm.wav",
+    "/samples/bassoneshots/AKAS%20B6%20-%20Em.wav",
+    "/samples/bassoneshots/AKAS%20B7%20-%20G.wav",
+    "/samples/bassoneshots/AKAS%20B8%20-%20B.wav",
+    "/samples/bassoneshots/AKAS%20B9%20-%20Am.wav"
+  ],
+  "drumsamples": [
+    "/samples/drumsamples/Africa_93bpm_1bars.wav"
+  ],
+  "effects": [
+    "/samples/effects/aanhang.wav",
+    "/samples/effects/PreCastHolyMagicMedium.ogg",
+    "/samples/effects/seal.ogg",
+    "/samples/effects/warhorse.ogg"
+  ],
+  "fullsample": [
+    "/samples/fullsample/Artifacts.mp3",
+    "/samples/fullsample/bafbrein.mp3",
+    "/samples/fullsample/Be%20the%20Song.mp3",
+    "/samples/fullsample/Bellbottoms.mp3",
+    "/samples/fullsample/Belly%20of%20the%20Beast%20(feat.%20Chronixx).mp3",
+    "/samples/fullsample/Big%20Money%20Salvia.mp3",
+    "/samples/fullsample/Black%20Yellow%20Moebius.mp3",
+    "/samples/fullsample/Blackout%20City.mp3",
+    "/samples/fullsample/Boom%20Bust%20Boom%20(I%20Put%20My%20Ftse%20in%20Your%20Asset)%20%5Bfeat.%20Envy%5D.mp3",
+    "/samples/fullsample/Breakin'%20Point.mp3",
+    "/samples/fullsample/By%20Your%20Side.mp3",
+    "/samples/fullsample/Dark%20Titan.mp3",
+    "/samples/fullsample/darktitan.mp3",
+    "/samples/fullsample/David.mp3",
+    "/samples/fullsample/DNA..mp3",
+    "/samples/fullsample/Done%20With%20It.mp3",
+    "/samples/fullsample/Dragostea%20Din%20Tei%20-%20Romanian%20Version.mp3",
+    "/samples/fullsample/Enter%20the%20Nexus.mp3",
+    "/samples/fullsample/enterthenexus.mp3",
+    "/samples/fullsample/Everlasting%20Hymn%20(Cathedral).mp3",
+    "/samples/fullsample/firetemple.mp3"
+  ],
+  "guitar": [
+    "/samples/guitar/guitarshort.wav"
+  ],
+  "haltes": [
+    "/samples/haltes/amstelveen.wav",
+    "/samples/haltes/brinkstraat.wav",
+    "/samples/haltes/eindpunt.wav"
+  ],
+  "loops": [
+    "/samples/loops/%5BGVB%20Metro%20Amsterdam%5D%20Omroepen%20Lijn%2051%20Centraal%20Station%20-%20Zuid%20-%20Amstelveen%20Westwijk%20-%20Bahn%20Ansagen.mp3",
+    "/samples/loops/chaabi.mp3",
+    "/samples/loops/hotlinesynth.wav",
+    "/samples/loops/loop.wav",
+    "/samples/loops/separated/htdemucs/track/bass.flac",
+    "/samples/loops/separated/htdemucs/track/drums.flac",
+    "/samples/loops/separated/htdemucs/track/other.flac",
+    "/samples/loops/separated/htdemucs/track/vocals.flac",
+    "/samples/loops/track.mp3",
+    "/samples/loops/track(1).wav",
+    "/samples/loops/voice/minder.wav"
+  ],
+  "pre-loop": [
+    "/samples/pre-loop/brabant.mp3",
+    "/samples/pre-loop/gvb-ding.wav",
+    "/samples/pre-loop/mainmelody-track1.wav",
+    "/samples/pre-loop/rifi.wav"
+  ],
+  "sfx": [
+    "/samples/sfx/ambient-door-closing_B_minor.wav"
+  ],
+  "stems": [
+    "/samples/stems/dr2drum.wav",
+    "/samples/stems/hotlinesynth.wav"
+  ],
+  "subbasses": [
+    "/samples/subbasses/Studio%20Brootle%20Subs-01.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-02.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-03.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-04.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-05.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-06.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-07.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-08.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-09.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-10.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-11.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-12.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-13.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-14.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-15.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-16.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-17.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-18.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-19.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-20.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-21.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-22.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-23.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-24.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-25.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-26.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-27.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-28.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-29.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-30.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-31.wav",
+    "/samples/subbasses/Studio%20Brootle%20Subs-32.wav"
+  ],
+  "test": [
+    "/samples/test/Guus%20Meeuwis%20-%20Brabant%20-%20GuusmeeuwisVEVO.mp3"
+  ],
+  "track1": [
+    "/samples/track1/amazigh-loop.wav"
+  ],
+  "voices": [
+    "/samples/voices/bourdain_speech_1.mp3",
+    "/samples/voices/bourdain_speech_2.mp3"
+  ],
+  "amazigh-loop": "/samples/amazigh-loop.wav"
+}
