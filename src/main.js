@@ -637,13 +637,11 @@ function renderPlayer() {
   // Show loading overlay
   replMount.appendChild(loadingOverlay);
   
-  // Clean sample loading via JSON URL
-  const sampleCode = `samples('/samples.json')`;
-  
-  const fullCode = `${sampleCode}\n\n${state.patches}\n\n${track.code}`;
+  // Initial REPL shows ONLY the track code; samples and patches are applied at play-time
+  const visibleCode = `${track.code}`;
   
   if (replEl) replEl.remove();
-  replEl = createReplWithCode(fullCode);
+  replEl = createReplWithCode(visibleCode);
   replMount.appendChild(replEl);
   forceReplIframeFullSize(replEl);
   
@@ -680,10 +678,8 @@ function renderPlayer() {
     if (idx !== -1) {
       state.tracks[idx].code = original.code;
       saveState();
-      const sampleCode = `samples('/samples.json')`;
-      const restoredFull = `${sampleCode}\n\n${state.patches}\n\n${original.code}`;
       if (replEl && replEl.editor) {
-        replEl.editor.setCode(restoredFull);
+        replEl.editor.setCode(original.code);
       }
       const originalText = btnRestore.textContent;
       btnRestore.textContent = "Restored";
@@ -720,7 +716,14 @@ function renderPlayer() {
     window.addEventListener("error", errListener, { once: true });
     window.addEventListener("unhandledrejection", rejListener, { once: true });
     try {
+      const originalCode = replEl.editor.code || "";
+      const prelude = `samples('/samples.json?ts=${Date.now()}')\n\n${state.patches}\n\n`;
+      replEl.editor.setCode(prelude + originalCode);
       replEl.editor.evaluate();
+      setTimeout(() => {
+        // Restore visible editor to only user track code
+        replEl.editor.setCode(originalCode);
+      }, 50);
     } catch (e) {
       fault = true;
       lastFaultMessage = e?.message || "";
