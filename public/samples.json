@@ -1,4 +1,8 @@
 {
+  "amazigh": [
+    "/samples/amazigh/amazigh_drums.mp3",
+    "/samples/amazigh/amazigh_melody.mp3"
+  ],
   "ambience-sample": [
     "/samples/ambience-sample/ambient_club.mp3"
   ],
@@ -89,6 +93,7 @@
     "/samples/pre-loop/brabant.mp3",
     "/samples/pre-loop/gvb-ding.wav",
     "/samples/pre-loop/mainmelody-track1.wav",
+    "/samples/pre-loop/nigham.mp3",
     "/samples/pre-loop/rifi.wav"
   ],
   "sfx": [
@@ -132,15 +137,36 @@
     "/samples/subbasses/Studio%20Brootle%20Subs-31.wav",
     "/samples/subbasses/Studio%20Brootle%20Subs-32.wav"
   ],
+  "tears": [
+    "/samples/tears/Tears%20For%20Fears%20-%20Everybody%20Wants%20To%20Rule%20The%20World_bass.mp3",
+    "/samples/tears/Tears%20For%20Fears%20-%20Everybody%20Wants%20To%20Rule%20The%20World_drums.mp3",
+    "/samples/tears/Tears%20For%20Fears%20-%20Everybody%20Wants%20To%20Rule%20The%20World_other.mp3",
+    "/samples/tears/Tears%20For%20Fears%20-%20Everybody%20Wants%20To%20Rule%20The%20World_vocals.mp3"
+  ],
   "test": [
     "/samples/test/Guus%20Meeuwis%20-%20Brabant%20-%20GuusmeeuwisVEVO.mp3"
   ],
   "track1": [
     "/samples/track1/amazigh-loop.wav"
   ],
+  "trym": [
+    "/samples/trym/Trym%20-%20Pandora%20%5BPOSS002%5D_bass.mp3",
+    "/samples/trym/Trym%20-%20Pandora%20%5BPOSS002%5D_drums.mp3",
+    "/samples/trym/Trym%20-%20Pandora%20%5BPOSS002%5D_other.mp3",
+    "/samples/trym/Trym%20-%20Pandora%20%5BPOSS002%5D_vocals.mp3"
+  ],
   "voices": [
     "/samples/voices/bourdain_speech_1.mp3",
     "/samples/voices/bourdain_speech_2.mp3"
+  ],
+  "zellig": [
+    "/samples/zellig/1.jpeg",
+    "/samples/zellig/850x450-Pix_1-7.jpg",
+    "/samples/zellig/did-i-just-see-moroccan-zellij-in-assassins-creed-mirage-v0-2q5ja4edzy1b1.png.webp",
+    "/samples/zellig/did-i-just-see-moroccan-zellij-in-assassins-creed-mirage-v0-b0emdsugzy1b1.png.webp",
+    "/samples/zellig/istockphoto-2181787036-612x612.jpg",
+    "/samples/zellig/vue-aerienne-travail-carrelage-exquis-au-maroc.webp",
+    "/samples/zellig/zellige-marocain.webp"
   ],
   "amazigh-loop": "/samples/amazigh-loop.wav"
 }
