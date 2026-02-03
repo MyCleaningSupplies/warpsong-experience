@@ -523,6 +523,24 @@ function renderPlayer() {
       </aside>
 
       <main class="main">
+        <section class="listener-guide">
+          <div class="guide-header">
+            <div>
+              <div class="guide-title">Luisterwijzer</div>
+              <div class="guide-sub">Album als software: elk nummer is een Strudel‑patch met audio, samples en Hydra‑visuals.</div>
+            </div>
+            <div id="playStatus" class="guide-status">Wachten op start</div>
+          </div>
+          <ol class="guide-steps">
+            <li><strong>Kies een track</strong> in de linkerkolom om de code te laden.</li>
+            <li><strong>Druk op Afspelen</strong> om audio + visuals te starten (browser kan om audio‑toestemming vragen).</li>
+            <li><strong>Lees de samples</strong> en volg de slideshow voor de bronnen en betekenis.</li>
+            <li><strong>Stop of reset</strong> als je vastloopt; de editor is optioneel.</li>
+          </ol>
+          <div class="guide-notes">
+            <div class="guide-note">Tip: dit is (nog) geen interactieve jam. Laat het nummer spelen en kijk hoe de visuals reageren op audio.</div>
+          </div>
+        </section>
         <div class="repl-controls">
            <button id="btnPlay" class="control-btn">▶ Afspelen / Bijwerken</button>
            <button id="btnStop" class="control-btn">■ Stoppen</button>
@@ -532,6 +550,45 @@ function renderPlayer() {
       </main>
     </div>
   `;
+
+  const playStatus = document.querySelector("#playStatus");
+  function updatePlayStatus(status = null) {
+    if (!playStatus) return;
+    const effectiveStatus = status || (isPlaying ? "playing" : "idle");
+    playStatus.classList.remove("is-playing", "is-fault", "is-stopped");
+    if (effectiveStatus === "playing") {
+      playStatus.textContent = "Speelt af";
+      playStatus.classList.add("is-playing");
+    } else if (effectiveStatus === "fault") {
+      playStatus.textContent = "Fout in patch";
+      playStatus.classList.add("is-fault");
+    } else if (effectiveStatus === "stopped") {
+      playStatus.textContent = "Gestopt";
+      playStatus.classList.add("is-stopped");
+    } else {
+      playStatus.textContent = "Wachten op start";
+    }
+  }
+
+  function stopPlayback({ updateStatus = true } = {}) {
+    if (!replEl || !replEl.editor) return;
+    const playBtn = document.querySelector("#btnPlay");
+    const stopBtn = document.querySelector("#btnStop");
+    stopBtn?.classList.add("stopping");
+    isPlaying = false;
+    setReplTransparency(false);
+    replEl.editor.stop();
+    if (playBtn) {
+      playBtn.classList.remove("playing");
+      playBtn.innerHTML = "▶ Afspelen / Bijwerken";
+    }
+    if (updateStatus) {
+      updatePlayStatus("stopped");
+    }
+    setTimeout(() => {
+      stopBtn?.classList.remove("stopping");
+    }, 500);
+  }
 
   // Render Track List
   const list = document.querySelector("#trackList");
@@ -546,16 +603,8 @@ function renderPlayer() {
       
       // Stop current playback before switching
       if (isPlaying && replEl && replEl.editor) {
-        replEl.editor.stop();
-        isPlaying = false;
-        setReplTransparency(false);
-        
-        // Reset play button state
-        const playBtn = document.querySelector("#btnPlay");
-        if (playBtn) {
-          playBtn.classList.remove("playing");
-          playBtn.innerHTML = "▶ Afspelen / Bijwerken";
-        }
+        stopPlayback({ updateStatus: false });
+        updatePlayStatus("stopped");
       }
       
       state.currentTrackId = t.id;
@@ -697,6 +746,7 @@ function renderPlayer() {
     }
     btnPlay.classList.remove("playing");
     btnPlay.innerHTML = "▶ Afspelen / Bijwerken";
+    updatePlayStatus("fault");
     showFaultPrompt();
   };
   
@@ -770,9 +820,11 @@ function renderPlayer() {
   if (isPlaying) {
     btnPlay.classList.add("playing");
     btnPlay.innerHTML = "⏸ Speelt af";
+    updatePlayStatus();
   } else {
     btnPlay.classList.remove("playing");
     btnPlay.innerHTML = "▶ Afspelen / Bijwerken";
+    updatePlayStatus();
   }
 
 btnPlay.addEventListener("click", () => {
@@ -781,33 +833,14 @@ btnPlay.addEventListener("click", () => {
       setReplTransparency(true);
       btnPlay.classList.add("playing");
       btnPlay.innerHTML = "⏸ Speelt af";
+      updatePlayStatus();
       evaluateWithGuard();
     }
   });
 
   btnStop.addEventListener("click", () => {
     if (replEl && replEl.editor) {
-      btnStop.classList.add("stopping");
-      isPlaying = false;
-      setReplTransparency(false);
-      replEl.editor.stop();
-      btnPlay.classList.remove("playing");
-      btnPlay.innerHTML = "▶ Afspelen / Bijwerken";
-      setTimeout(() => {
-        btnStop.classList.remove("stopping");
-      }, 500);
-    }
-  });
-
-  btnStop.addEventListener("click", () => {
-    if (replEl && replEl.editor) {
-      btnStop.classList.add("stopping");
-      isPlaying = false;
-      setReplTransparency(false);
-      replEl.editor.stop();
-      setTimeout(() => {
-        btnStop.classList.remove("stopping");
-      }, 500);
+      stopPlayback();
     }
   });
 
