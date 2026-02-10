@@ -5,14 +5,21 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "node server.js",
+    "dev:full": "concurrently \"npm run dev\" \"npm run dev:server\"",
     "build": "node scripts/scan-samples.js && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server.js"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "vite": "^7.2.4"
   },
   "dependencies": {
     "@strudel/repl": "^1.2.7",
-    "@strudel/web": "^1.2.6"
+    "@strudel/web": "^1.2.6",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "multer": "^2.0.2"
   }
 }

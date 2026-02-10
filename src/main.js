@@ -162,26 +162,20 @@ let loop_base = s("drumsamples")
   .loopAt(4)
   .attack(0.02)
   .release(0.05)
-  .sometimes(x=>x.ply(2))
-  .sometimesBy(.4, x=>x.delay(".5"))
   .phaser(0.5)
   .orbit(2)
   .postgain(0.8)
 
-let amen_stamp = s("breaks/2")
+let amen_stamp = s("drumsamples")
   .n(3)
   .fit()
   .scrub("0 0.0625 0.125 0.125")
-  .sometimesBy(.4, x=>x.delay(".5"))
   .gain(0.1)
   .room(0.4)           
   .decay(0.15)
 
 let live_a = s("breaks/2").n(0)
   .scrub(irand(2).div(16).seg(8))
-  .sometimes(x=>x.ply(1))
-  .rarely(x=>x.speed("1 | -1"))
-  .sometimesBy(.4, x=>x.delay(".5"))
   .degradeBy(0.1)
   .rib(1, 4)
   .lpf(800)
@@ -202,7 +196,6 @@ let live_c = s("breaks/2").n(3).fit()
   .scrub(irand(5).div(16).seg(4))
   .rib(10, 2)
   .degradeBy(0.1)
-  .almostNever(ply("2 | 4"))
   .sustain(0.3)
   .decay(0.5)
   .room(0.5)
@@ -264,26 +257,13 @@ $: arrange(
   [8, stack(kick.gain(0), loop_base.gain(0), stem.gain(0))]
 ).punchcard()
 `.trim()
-  },
-  {
-    id: "t3",
-    title: "BREDA",
-    subtitle: "acceptatie en mn plek gevonden.",
-    code: `
-setCps(170/60/4)
-samples('github:switchangel/breaks')
-
-// Replace with your real Track 3
-s("breaks/2").fit().scrub(irand(16).div(16).seg(8)).gain(0.7)
-`.trim(),
-    samples: []
   }
 ];
 
 // -----------------------------------------------------------------------------
 // STATE & STORAGE
 // -----------------------------------------------------------------------------
-const STORAGE_KEY = "warpsong_data_v1";
+const STORAGE_KEY = "warpsong_data_v2";
 
 function loadState() {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -519,7 +499,6 @@ function renderPlayer() {
           <div class="nowSubtitle">${track.subtitle}</div>
         </div>
 
-        <button id="adminBtn" class="adminBtn">Editor openen</button>
       </aside>
 
       <main class="main">
@@ -527,6 +506,7 @@ function renderPlayer() {
            <button id="btnPlay" class="control-btn">▶ Afspelen / Bijwerken</button>
            <button id="btnStop" class="control-btn">■ Stoppen</button>
            <button id="btnRestore" class="control-btn restore-btn">↺ Track herstellen</button>
+           <button id="btnAdmin" class="control-btn admin-btn">⚙️ Admin</button>
         </div>
         <div id="replMount"></div>
       </main>
@@ -658,12 +638,7 @@ function renderPlayer() {
     }
   }, 1000); // Give REPL time to initialize
 
-  // Admin Button
-  document.querySelector("#adminBtn").addEventListener("click", () => {
-    state.view = "editor";
-    state.editorTrackId = state.currentTrackId; // Start editing current track
-    renderApp();
-  });
+  // Admin Button removed
 
   // Playback Controls
   const btnPlay = document.querySelector("#btnPlay");
@@ -701,41 +676,128 @@ function renderPlayer() {
   };
   
   const evaluateWithGuard = () => {
+    if (!replEl || !replEl.editor) {
+      handleFaultDetected();
+      return;
+    }
+
     let fault = false;
+    let evaluationCompleted = false;
     const originalConsoleError = console.error;
-    const errListener = (e) => { fault = true; lastFaultMessage = e?.message || ""; };
-    const rejListener = (e) => { fault = true; lastFaultMessage = e?.reason?.message || e?.message || ""; };
+    const originalConsoleWarn = console.warn;
+    const errListener = (e) => { 
+      if (!evaluationCompleted) {
+        fault = true; 
+        lastFaultMessage = e?.message || ""; 
+      }
+    };
+    const rejListener = (e) => { 
+      if (!evaluationCompleted) {
+        fault = true; 
+        lastFaultMessage = e?.reason?.message || e?.message || ""; 
+      }
+    };
+    
     console.error = function(...args) {
-      fault = true;
-      if (args && args.length) {
-        const msg = typeof args[0] === "string" ? args[0] : (args[0]?.message || "");
-        if (msg) lastFaultMessage = msg;
+      if (!evaluationCompleted) {
+        const msg = args.join(' ');
+        if (msg.includes('undefined') && msg.includes('pattern')) {
+          fault = true;
+          lastFaultMessage = "Pattern error: " + msg;
+        } else if (msg.includes('Failed to load resource')) {
+          // Don't treat favicon errors as faults
+          if (!msg.includes('favicon.ico')) {
+            fault = true;
+            lastFaultMessage = "Resource error: " + msg;
+          }
+        } else if (msg) {
+          lastFaultMessage = msg;
+        }
       }
       originalConsoleError.apply(console, args);
     };
+
+    console.warn = function(...args) {
+      if (!evaluationCompleted) {
+        const msg = args.join(' ');
+        if (msg.includes('undefined') && msg.includes('pattern')) {
+          fault = true;
+          lastFaultMessage = "Pattern warning: " + msg;
+        }
+      }
+      originalConsoleWarn.apply(console, args);
+    };
+    
     window.addEventListener("error", errListener, { once: true });
     window.addEventListener("unhandledrejection", rejListener, { once: true });
+    
     try {
       const originalCode = replEl.editor.code || "";
-      const prelude = `samples('/samples.json?ts=${Date.now()}')\n\n${state.patches}\n\n`;
-      replEl.editor.setCode(prelude + originalCode);
-      replEl.editor.evaluate();
+      const patchesContent = state.patches || "";
+
+      // Run patches in JS context to avoid Strudel mini parser errors
+      try {
+        if (patchesContent.trim()) {
+          const patchFn = new Function(patchesContent);
+          patchFn();
+        }
+      } catch (e) {
+        console.warn("Patch execution failed:", e?.message || e);
+      }
+
+      // Load local samples.json in JS context
+      try {
+        if (typeof samples === "function") {
+          samples(`/samples.json?ts=${Date.now()}`);
+        }
+      } catch (e) {
+        console.warn("Could not load samples.json:", e?.message || e);
+      }
+
+      // Evaluate only the user's Strudel code
+      replEl.editor.setCode(originalCode);
+      
+      // Wait for the REPL to process the code before evaluation
       setTimeout(() => {
-        // Restore visible editor to only user track code
-        replEl.editor.setCode(originalCode);
-      }, 50);
+        try {
+          if (replEl && replEl.editor) {
+            replEl.editor.evaluate();
+            // Give a bit more time for async errors to surface
+            setTimeout(() => {
+              evaluationCompleted = true;
+            }, 500);
+          }
+        } catch (evalError) {
+          fault = true;
+          lastFaultMessage = "Evaluation error: " + (evalError?.message || "Unknown evaluation error");
+          evaluationCompleted = true;
+        }
+      }, 200);
+      
+      // Restore visible editor after a longer delay to ensure evaluation completes
+      setTimeout(() => {
+        if (replEl && replEl.editor) {
+          replEl.editor.setCode(originalCode);
+        }
+      }, 800);
     } catch (e) {
       fault = true;
-      lastFaultMessage = e?.message || "";
+      lastFaultMessage = "Setup error: " + (e?.message || "Failed to setup code");
+      evaluationCompleted = true;
     }
+    
+    // Clean up after a longer timeout to catch delayed errors
     setTimeout(() => {
       console.error = originalConsoleError;
+      console.warn = originalConsoleWarn;
       window.removeEventListener("error", errListener);
       window.removeEventListener("unhandledrejection", rejListener);
+      evaluationCompleted = true;
+      
       if (fault) {
         handleFaultDetected();
       }
-    }, 1200);
+    }, 1500);
   };
   
   const showFaultPrompt = () => {
@@ -799,21 +861,16 @@ btnPlay.addEventListener("click", () => {
     }
   });
 
-  btnStop.addEventListener("click", () => {
-    if (replEl && replEl.editor) {
-      btnStop.classList.add("stopping");
-      isPlaying = false;
-      setReplTransparency(false);
-      replEl.editor.stop();
-      setTimeout(() => {
-        btnStop.classList.remove("stopping");
-      }, 500);
-    }
-  });
-
   btnRestore.addEventListener("click", () => {
     restoreCurrentTrack();
   });
+
+  const btnAdmin = document.querySelector("#btnAdmin");
+  if (btnAdmin) {
+    btnAdmin.addEventListener("click", () => {
+      window.open('/admin.html', '_blank');
+    });
+  }
 }
 
 function renderEditor() {
@@ -823,57 +880,65 @@ function renderEditor() {
   
   const currentCode = isGlobal ? state.patches : (track ? track.code : "");
   const currentTitle = isGlobal ? "Globale patches" : (track ? track.title : "");
-  const sidebarWidth = state.sidebarWidth || 300; // Persist width in state if possible, or just default
+  const sidebarWidth = state.sidebarWidth || 320; // Increased default width for better UX
 
   app.innerHTML = `
     <div class="editor-layout">
       <aside class="editor-sidebar" style="width: ${sidebarWidth}px">
-        <button id="backBtn" class="backBtn">← Terug naar speler</button>
+        <div class="editor-header">
+          <button id="backBtn" class="backBtn">← Terug naar speler</button>
+          <div class="editor-title">
+            <strong>${isGlobal ? "🌐 Globale Patches" : "🎵 " + (track ? track.title : "")}</strong>
+            ${!isGlobal && track ? `<div class="editor-subtitle">${track.subtitle}</div>` : ""}
+          </div>
+        </div>
         
-        <div style="margin-top: 20px; font-weight: bold; color: #888;">BEWERKEN</div>
-        
-        <div class="input-group">
-          <label>Bestand kiezen</label>
-          <select id="fileSelect" style="padding: 8px; background: #222; color: #fff; border: 1px solid #333;">
-            <option value="global" ${isGlobal ? "selected" : ""}>Globale patches (samples, helpers)</option>
-            <optgroup label="Nummers">
+        <div class="editor-section">
+          <h3>📝 Bestand Kiezen</h3>
+          <select id="fileSelect" class="editor-select">
+            <option value="global" ${isGlobal ? "selected" : ""}>🌐 Globale patches (samples, helpers)</option>
+            <optgroup label="🎵 Nummers">
               ${state.tracks.map(t => `<option value="${t.id}" ${t.id === state.editorTrackId ? "selected" : ""}>${t.title}</option>`).join("")}
             </optgroup>
           </select>
         </div>
 
         ${!isGlobal && track ? `
-        <div class="input-group">
-          <label>Titel</label>
-          <input id="editTitle" type="text" value="${track.title}">
-        </div>
-        <div class="input-group">
-          <label>Subtitel / Beschrijving</label>
-          <textarea id="editSubtitle">${track.subtitle}</textarea>
+        <div class="editor-section">
+          <h3>📋 Track Informatie</h3>
+          <div class="input-group">
+            <label>Titel</label>
+            <input id="editTitle" type="text" value="${track.title}" placeholder="Track titel">
+          </div>
+          <div class="input-group">
+            <label>Subtitel / Beschrijving</label>
+            <textarea id="editSubtitle" placeholder="Track beschrijving">${track.subtitle}</textarea>
+          </div>
         </div>
 
-        <div class="input-group">
-          <label>Sample‑verwijzingen van de track</label>
+        <div class="editor-section">
+          <h3>🎵 Sample-verwijzingen</h3>
+          <div class="section-info">Voeg samples toe die in deze track worden gebruikt</div>
           <div class="sample-edit-list" id="sampleList">
             ${(track.samples || []).map((s, idx) => `
               <div class="sample-edit-item">
                 <div class="sample-edit-header">
-                  <span>Sample #${idx + 1}</span>
-                  <button class="btn-small btn-remove-sample" data-idx="${idx}">✕</button>
+                  <span class="sample-number">🎵 Sample #${idx + 1}</span>
+                  <button class="btn-small btn-remove-sample" data-idx="${idx}" title="Verwijderen">✕</button>
                 </div>
                 <div class="sample-edit-grid">
                   <div class="input-group">
-                    <input type="text" class="sample-name-input" data-idx="${idx}" placeholder="Naam" value="${s.name}">
+                    <input type="text" class="sample-name-input" data-idx="${idx}" placeholder="Sample naam" value="${s.name}">
                   </div>
                   <div class="input-group">
                     <input type="text" class="sample-desc-input" data-idx="${idx}" placeholder="Beschrijving" value="${s.description}">
                   </div>
                   <div class="input-group">
-                    <input type="text" class="sample-sig-input" data-idx="${idx}" placeholder="Betekenis" value="${s.significance}">
+                    <input type="text" class="sample-sig-input" data-idx="${idx}" placeholder="Betekenis/context" value="${s.significance}">
                   </div>
                 </div>
-                <details>
-                  <summary>Afbeelding</summary>
+                <details class="sample-image-details">
+                  <summary>🖼️ Afbeelding</summary>
                   <div class="input-group" style="margin-top:8px;">
                     <input type="text" class="sample-image-url-input" data-idx="${idx}" placeholder="/samples/images/example.jpg" value="${s.imageUrl || ""}">
                   </div>
@@ -881,37 +946,61 @@ function renderEditor() {
                     <input type="file" class="sample-image-file-input" data-idx="${idx}" accept="image/*">
                   </div>
                   <div class="sample-image-preview">
-                    ${s.imageUrl || s.imageData ? `<img src="${s.imageUrl || s.imageData}" alt="Sample‑afbeelding">` : `<div class="no-image">Geen afbeelding</div>`}
+                    ${s.imageUrl || s.imageData ? `<img src="${s.imageUrl || s.imageData}" alt="Sample‑afbeelding">` : `<div class="no-image">📷 Geen afbeelding</div>`}
                   </div>
                 </details>
               </div>
             `).join("")}
           </div>
-          <button id="addSampleBtn" class="btn-add">+ Sample‑verwijzing toevoegen</button>
+          <button id="addSampleBtn" class="btn-add">➕ Sample‑verwijzing toevoegen</button>
         </div>
 
-        <div class="input-group" style="margin-top: 10px; border-top: 1px solid #333; padding-top: 10px;">
-          <label>Automatisch audio‑sampleverwijzing toevoegen</label>
-          <input type="file" id="sampleUpload" accept="audio/*">
-          <div style="font-size: 10px; opacity: 0.7; margin-top: 6px;">
-            Dit voegt een sampleverwijzing toe op basis van de bestandsnaam. Om het audio‑bestand in Strudel te gebruiken, plaats het onder <code>public/samples/</code> en verwerk het in <code>/samples.json</code>.
+        <div class="editor-section">
+          <h3>🎤 Quick Sample Upload</h3>
+          <div class="section-info">Upload een audiobestand om automatisch een sampleverwijzing te maken</div>
+          <input type="file" id="sampleUpload" accept="audio/*" class="file-upload">
+          <div class="upload-info">
+            💡 Tip: Om het audio‑bestand in Strudel te gebruiken, upload het via de <a href="/admin.html" target="_blank">Admin Interface</a>.
           </div>
         </div>
         ` : ""}
         
-        <div style="margin-top: auto; opacity: 0.5; font-size: 12px;">
-          Wijzigingen worden in de lokale opslag van je browser bewaard.
+        <div class="editor-footer">
+          <div class="storage-info">
+            💾 Auto-save: Actief
+          </div>
+          <div class="keyboard-hints">
+            ⌨️ <kbd>Ctrl+S</kbd> om op te slaan
+          </div>
         </div>
       </aside>
 
       <div class="resizer" id="dragHandle"></div>
 
       <main class="editor-main">
-        <div class="editor-header">
-          <div style="font-weight: bold;">${currentTitle}</div>
-          <button id="saveBtn" class="saveBtn">Opslaan & Bijwerken</button>
+        <div class="editor-main-header">
+          <div class="editor-status">
+            <span class="status-indicator ready"></span>
+            <span class="status-text">Klaar om te bewerken</span>
+          </div>
+          <div class="editor-actions">
+            <button id="saveBtn" class="save-btn">💾 Opslaan</button>
+            <button id="testBtn" class="test-btn">▶️ Test Code</button>
+          </div>
         </div>
-        <div id="editorMount" style="height:100%"></div>
+        <div class="editor-content">
+          <div id="editorMount" class="editor-code"></div>
+          <div class="editor-help">
+            <h4>🎯 Snelle Hulp:</h4>
+            <ul>
+              <li><strong>s("bd")</strong> - Basdrum sample</li>
+              <li><strong>s("sd")</strong> - Snare drum sample</li>
+              <li><strong>.every(4)</strong> - Elke 4 beats</li>
+              <li><strong>stack(a, b)</strong> - Combineer patterns</li>
+              <li><strong>.gain(0.5)</strong> - Volume</li>
+            </ul>
+          </div>
+        </div>
       </main>
     </div>
   `;
@@ -964,7 +1053,18 @@ function renderEditor() {
 
   // Save Functionality
   const saveBtn = document.querySelector("#saveBtn");
+  const testBtn = document.querySelector("#testBtn");
+  const statusIndicator = document.querySelector(".status-indicator");
+  const statusText = document.querySelector(".status-text");
+  
+  const updateStatus = (status, text) => {
+    statusIndicator.className = `status-indicator ${status}`;
+    statusText.textContent = text;
+  };
+  
   saveBtn.addEventListener("click", () => {
+    updateStatus('saving', 'Bezig met opslaan...');
+    
     const newCode = editorRepl.editor.code;
     
     if (isGlobal) {
@@ -997,12 +1097,60 @@ function renderEditor() {
     
     // Visual feedback
     const originalText = saveBtn.textContent;
-    saveBtn.textContent = "Opgeslagen!";
+    saveBtn.textContent = "✅ Opgeslagen!";
     saveBtn.style.background = "#fff";
+    updateStatus('ready', 'Opgeslagen');
+    
     setTimeout(() => {
       saveBtn.textContent = originalText;
-      saveBtn.style.background = "#2ecc71";
-    }, 1000);
+      saveBtn.style.background = "";
+      updateStatus('ready', 'Klaar om te bewerken');
+    }, 2000);
+  });
+
+  // Test functionality
+  testBtn.addEventListener("click", () => {
+    if (!editorRepl || !editorRepl.editor) {
+      updateStatus('error', 'Editor niet beschikbaar');
+      return;
+    }
+    
+    updateStatus('saving', 'Testen...');
+    
+    // Get the current code and evaluate it in a sandbox
+    const testCode = editorRepl.editor.code;
+    
+    try {
+      // Create a temporary REPL for testing
+      const tempRepl = createReplWithCode(testCode);
+      document.body.appendChild(tempRepl);
+      
+      // Wait for it to initialize, then evaluate
+      setTimeout(() => {
+        try {
+          tempRepl.editor.evaluate();
+          updateStatus('ready', 'Test geslaagd - geen fouten gevonden');
+        } catch (testError) {
+          updateStatus('error', `Test mislukt: ${testError.message}`);
+        } finally {
+          // Clean up
+          setTimeout(() => {
+            tempRepl.remove();
+          }, 1000);
+        }
+      }, 500);
+      
+    } catch (setupError) {
+      updateStatus('error', `Setup fout: ${setupError.message}`);
+    }
+  });
+
+  // Keyboard shortcut for save
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      saveBtn.click();
+    }
   });
 
   // Sample Management
