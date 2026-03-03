@@ -329,6 +329,11 @@ $: silence
   }
 ];
 
+const DESKTOP_TRACK_IDS = new Set(["t1", "t2"]);
+function getAvailableTracks() {
+  return tracks.filter((track) => DESKTOP_TRACK_IDS.has(track.id));
+}
+
 const trackMap = new Map(tracks.map((track) => [track.id, track]));
 
 const TASKBAR_HEIGHT = 40;
@@ -1260,30 +1265,19 @@ function buildLibraryView(visibleTracks) {
 
   return `
     <section class="library-host library-${state.designVariant}">
-      <div class="xp-desktop-hint">
-        <button class="xp-app-folder" data-open-app-folder-desktop="1">
-          <span class="xp-app-folder-icon">DIR</span>
-          <span class="xp-app-folder-label">Applications</span>
-        </button>
-        ${
-          state.designVariant === "v2"
-            ? `<p>Use Start -> Programs -> Applications. This variant feels like XP Explorer + media library.</p>`
-            : state.designVariant === "v3"
-            ? `<p>Use Start -> Programs -> Applications. This variant feels like XP kiosk/studio mode.</p>`
-            : `<p>Use Start -> Programs -> Applications to open a media player app.</p>`
-        }
-        <p>Core stays OS: media player + Strudel + prominent sample origins.</p>
-      </div>
       <div class="desktop-shortcuts">
-        <button class="desktop-icon" data-open-app-folder-desktop="1">Applications</button>
-        <button class="desktop-icon" data-toggle-all-tracks="1">${state.showAllTracks ? "Hero Tracks" : "All Tracks"}</button>
-        ${
-          state.designVariant === "v2"
-            ? `<button class="desktop-icon disabled" disabled>Media Library</button>`
-            : state.designVariant === "v3"
-            ? `<button class="desktop-icon disabled" disabled>Studio Panel</button>`
-            : `<button class="desktop-icon disabled" disabled>My Music</button>`
-        }
+        <button class="desktop-icon xp-shortcut applications" data-open-app-folder-desktop="1">
+          <span class="desktop-icon-glyph"></span>
+          <span class="desktop-icon-label">Applications</span>
+        </button>
+        <button class="desktop-icon xp-shortcut music" data-open-music-folder="1">
+          <span class="desktop-icon-glyph"></span>
+          <span class="desktop-icon-label">My Music</span>
+        </button>
+        <button class="desktop-icon xp-shortcut computer" data-open-about-desktop="1">
+          <span class="desktop-icon-glyph"></span>
+          <span class="desktop-icon-label">My Computer</span>
+        </button>
       </div>
     </section>
   `;
@@ -1296,7 +1290,7 @@ function buildDesktopTrackFolders(visibleTracks) {
       ${visibleTracks
         .map(
           (track) => `
-          <button class="track-folder-icon ${track.status}" data-open-folder-track="${track.id}">
+          <button class="track-folder-icon ${track.status}" data-run-track-exe="${track.id}">
             <span class="track-folder-glyph"></span>
             <span class="track-folder-label">${track.folder}</span>
           </button>
@@ -1340,6 +1334,109 @@ function openTrackFolderWindow(trackId) {
     minW: 360,
     minH: 260,
     body: buildTrackFolderBody(track)
+  });
+}
+
+function openMusicFolderWindow() {
+  const visibleTracks = getAvailableTracks();
+  createWindow({
+    id: "desktop-my-music",
+    title: "My Music",
+    type: "meta",
+    className: "window-source",
+    x: 120,
+    y: 96,
+    w: 420,
+    h: 320,
+    minW: 360,
+    minH: 260,
+    body: `
+      <div class="source-panel samples-v1-files">
+        <div class="panel-topline">Music Folder</div>
+        <div class="panel-track">Album Chapters</div>
+        <div class="panel-meta">Open a track folder, then run its executable.</div>
+        <div class="files-list">
+          ${visibleTracks
+            .map(
+              (track) => `
+              <button class="file-row music-folder-row" data-open-folder-track="${track.id}">
+                <span class="file-icon">DIR</span>
+                <span>${track.folder}</span>
+              </button>
+            `
+            )
+            .join("")}
+        </div>
+      </div>
+    `
+  });
+}
+
+function openApplicationsFolderWindow() {
+  const visibleTracks = getAvailableTracks();
+  createWindow({
+    id: "desktop-applications",
+    title: "Applications",
+    type: "meta",
+    className: "window-source",
+    x: 108,
+    y: 92,
+    w: 440,
+    h: 340,
+    minW: 380,
+    minH: 280,
+    body: `
+      <div class="source-panel samples-v1-files">
+        <div class="panel-topline">Applications Folder</div>
+        <div class="panel-track">Media Player Shortcuts</div>
+        <div class="panel-meta">Open a track app directly from the desktop.</div>
+        <div class="files-list">
+          ${visibleTracks
+            .map(
+              (track) => `
+              <button class="file-row music-folder-row" data-run-track-exe="${track.id}">
+                <span class="file-icon">EXE</span>
+                <span>${track.title}.exe</span>
+              </button>
+            `
+            )
+            .join("")}
+        </div>
+      </div>
+    `
+  });
+}
+
+function openDesktopAboutWindow() {
+  createWindow({
+    id: "desktop-about",
+    title: "My Computer",
+    type: "meta",
+    className: "window-liner",
+    x: 90,
+    y: 80,
+    w: 420,
+    h: 300,
+    minW: 340,
+    minH: 240,
+    body: `
+      <div class="liner-panel">
+        <div class="panel-topline">Desktop Guide</div>
+        <div class="panel-track">Head As OS</div>
+        <section class="liner-section compact">
+          <h4>Applications</h4>
+          <p>Open track folders and run the executable to launch a media player.</p>
+        </section>
+        <section class="liner-section compact">
+          <h4>Tracks</h4>
+          <p>Each track folder is a chapter in the album.</p>
+        </section>
+        <section class="liner-section compact">
+          <h4>Sources</h4>
+          <p>Sample origins are clickable and open detail windows.</p>
+        </section>
+      </div>
+    `
   });
 }
 
@@ -1874,7 +1971,13 @@ function renderBoot() {
   setTimeout(() => {
     if (!state.bootDone) {
       state.bootDone = true;
-      state.view = "login";
+      state.view = "desktop";
+      state.desktopStep = "intro";
+      state.showAllTracks = false;
+      state.startMenuOpen = false;
+      state.startMenuPath = "root";
+      state.windows = [];
+      state.activeId = null;
     }
     renderApp();
   }, 1200);
@@ -1926,7 +2029,7 @@ function renderDesktopShell(visibleTracks) {
 }
 
 function renderDesktop() {
-  const visibleTracks = state.showAllTracks ? tracks : tracks.filter((track) => track.status === "hero");
+  const visibleTracks = getAvailableTracks();
 
   if (!app.querySelector(".desktop")) {
     app.innerHTML = renderDesktopShell(visibleTracks);
@@ -1968,7 +2071,7 @@ function renderDesktop() {
 
   const startMenuHost = byId("startMenuHost");
   if (startMenuHost) {
-    const startAppsList = tracks
+    const startAppsList = getAvailableTracks()
       .map(
         (track) => `
         <button class="start-item" data-start-track="${track.id}">
@@ -2067,14 +2170,14 @@ function renderDesktop() {
   });
 
   document.querySelectorAll("[data-open-folder-track]").forEach((button) => {
-    button.addEventListener("dblclick", () => {
-      const trackId = button.getAttribute("data-open-folder-track");
-      openTrackFolderWindow(trackId);
-    });
     button.addEventListener("click", () => {
       const trackId = button.getAttribute("data-open-folder-track");
       const target = findWindowById(`folder-${trackId}`);
-      if (target) focusWindow(target.id);
+      if (target) {
+        focusWindow(target.id);
+        return;
+      }
+      openTrackFolderWindow(trackId);
     });
   });
 
@@ -2118,9 +2221,19 @@ function renderDesktop() {
 
   document.querySelectorAll("[data-open-app-folder-desktop]").forEach((button) => {
     button.addEventListener("click", () => {
-      state.startMenuOpen = true;
-      state.startMenuPath = "apps";
-      renderDesktop();
+      openApplicationsFolderWindow();
+    });
+  });
+
+  document.querySelectorAll("[data-open-music-folder]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openMusicFolderWindow();
+    });
+  });
+
+  document.querySelectorAll("[data-open-about-desktop]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openDesktopAboutWindow();
     });
   });
 
@@ -2256,10 +2369,6 @@ function renderDesktop() {
 }
 
 function renderApp() {
-  if (state.view === "login") {
-    renderLogin();
-    return;
-  }
   if (state.view === "boot") {
     renderBoot();
     return;

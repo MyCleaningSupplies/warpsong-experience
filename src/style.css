@@ -230,6 +230,7 @@ button {
   position: absolute;
   inset: 14px 14px 52px 14px;
   z-index: 2;
+  pointer-events: none;
 }
 
 .places-dock.is-hidden {
@@ -437,14 +438,7 @@ button {
 }
 
 .xp-desktop-hint {
-  position: absolute;
-  left: 18px;
-  top: 18px;
-  width: 320px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: linear-gradient(180deg, rgba(10, 16, 30, 0.78), rgba(8, 12, 22, 0.72));
-  color: #e8eefb;
-  padding: 12px;
+  display: none;
 }
 
 .xp-desktop-hint p {
@@ -478,58 +472,171 @@ button {
 .desktop-shortcuts {
   position: absolute;
   left: 18px;
-  top: 210px;
+  top: 16px;
   display: grid;
-  gap: 8px;
+  gap: 14px;
+  align-content: start;
+  width: 92px;
+  pointer-events: auto;
 }
 
 .desktop-track-folders {
   position: absolute;
-  top: 14px;
-  right: 22px;
+  top: 16px;
+  left: 124px;
   bottom: 52px;
-  width: 210px;
+  width: 240px;
   display: grid;
+  grid-template-columns: repeat(2, 92px);
   grid-auto-rows: min-content;
-  gap: 10px;
+  gap: 14px 18px;
   align-content: start;
   z-index: 2;
+  pointer-events: auto;
 }
 
+.desktop-icon,
 .track-folder-icon {
-  text-align: left;
-  border: 1px dashed rgba(255, 255, 255, 0.66);
-  background: rgba(0, 35, 88, 0.22);
-  color: #f5faff;
-  padding: 8px;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 6px;
+  width: 92px;
+  min-height: 72px;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #ffffff;
+  text-align: center;
+  box-shadow: none;
 }
 
+.desktop-icon:hover,
+.track-folder-icon:hover {
+  background: rgba(49, 93, 173, 0.28);
+  border-color: rgba(220, 234, 255, 0.35);
+}
+
+.desktop-icon:focus-visible,
+.track-folder-icon:focus-visible {
+  outline: none;
+  background: rgba(49, 93, 173, 0.35);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.desktop-icon-glyph,
 .track-folder-glyph {
   display: block;
-  width: 28px;
+  position: relative;
+  width: 34px;
+  height: 30px;
+  pointer-events: none;
+}
+
+.desktop-icon-label,
+.track-folder-label {
+  display: block;
+  width: 100%;
+  font-size: 11px;
+  line-height: 1.2;
+  color: #ffffff;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+  word-break: break-word;
+}
+
+.desktop-icon.applications .desktop-icon-glyph,
+.track-folder-glyph {
+  background: linear-gradient(180deg, #f3d86e, #bb8f26);
+  border: 1px solid #8c6819;
+  border-radius: 1px;
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+.desktop-icon.applications .desktop-icon-glyph::before,
+.track-folder-glyph::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 1px;
+  width: 14px;
+  height: 6px;
+  border: 1px solid #8c6819;
+  border-bottom: none;
+  border-radius: 2px 2px 0 0;
+  background: #f7dd77;
+}
+
+.desktop-icon.music .desktop-icon-glyph {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #35507f;
+  background: radial-gradient(circle at 35% 35%, #f5fbff 0, #c5e1ff 24%, #7ea9e8 40%, #3465c4 68%, #173271 100%);
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+.desktop-icon.music .desktop-icon-glyph::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.desktop-icon.computer .desktop-icon-glyph {
+  width: 34px;
+  height: 28px;
+}
+
+.desktop-icon.computer .desktop-icon-glyph::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 0;
   height: 20px;
-  background: linear-gradient(180deg, #f2d46b, #b9932f);
-  border: 1px solid #7b6225;
+  border: 1px solid #355182;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #dff0ff, #79b7ff 55%, #2e65bf 100%);
   box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
 }
 
-.track-folder-label {
-  display: block;
-  margin-top: 6px;
-  font-size: 11px;
+.desktop-icon.computer .desktop-icon-glyph::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 6px;
+  border: 1px solid #5a6878;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #d9dfe8, #9aa7b7);
 }
 
-.desktop-icon {
-  width: 180px;
-  text-align: left;
-  border: 1px solid #8ea1c6;
-  background: rgba(255, 255, 255, 0.9);
-  color: #1a2542;
-  padding: 7px 8px;
+.desktop-icon.toggle .desktop-icon-glyph {
+  width: 32px;
+  height: 30px;
 }
 
-.desktop-icon.disabled {
-  opacity: 0.6;
+.desktop-icon.toggle .desktop-icon-glyph::before,
+.desktop-icon.toggle .desktop-icon-glyph::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 22px;
+  border: 1px solid #5c729d;
+  background: linear-gradient(180deg, #ffffff, #d8e6ff);
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.desktop-icon.toggle .desktop-icon-glyph::before {
+  left: 9px;
+  top: 6px;
+}
+
+.desktop-icon.toggle .desktop-icon-glyph::after {
+  left: 4px;
+  top: 1px;
 }
 
 .identity-fragments {
@@ -773,6 +880,13 @@ button {
   position: absolute;
   inset: 0;
   z-index: 5;
+  pointer-events: none;
+}
+
+.windows-layer .window,
+.windows-layer .window *,
+.windows-layer .window-resizer {
+  pointer-events: auto;
 }
 
 .start-menu {
