@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" role="img" aria-label="Blankenberge context">
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e2f57"/>
+      <stop offset="100%" stop-color="#0a0d18"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="500" fill="url(#night)"/>
+  <rect y="350" width="900" height="150" fill="#0f141f"/>
+  <circle cx="690" cy="90" r="40" fill="#f8d689"/>
+  <rect x="120" y="200" width="180" height="190" fill="#101010"/>
+  <rect x="360" y="160" width="220" height="230" fill="#101010"/>
+  <rect x="620" y="210" width="160" height="180" fill="#101010"/>
+  <text x="100" y="80" font-family="monospace" font-size="30" fill="#ff8ac5">BLANKENBERGE</text>
+  <text x="100" y="120" font-family="monospace" font-size="24" fill="#95d4ff">deur blijft dicht, kick blijft slaan</text>
+</svg>

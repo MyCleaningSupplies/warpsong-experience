@@ -17,6 +17,8 @@ import {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const DIST_DIR = path.join(__dirname, 'dist');
+const HAS_DIST = fs.existsSync(DIST_DIR);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -24,9 +26,10 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors());
 
-// Serve static files with proper MIME types
+// Serve public assets and, when available, the built client bundle.
 app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, path) => {
+    res.setHeader('Cache-Control', 'no-store');
     if (path.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
     } else if (path.endsWith('.mjs')) {
@@ -37,17 +40,22 @@ app.use(express.static(path.join(__dirname, 'public'), {
   }
 }));
 
-app.use('/src', express.static(path.join(__dirname, 'src'), {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (path.endsWith('.mjs')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (path.endsWith('.json')) {
-      res.setHeader('Content-Type', 'application/json');
+if (HAS_DIST) {
+  app.use(express.static(DIST_DIR, {
+    setHeaders: (res, path) => {
+      res.setHeader('Cache-Control', 'no-store');
+      if (path.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      } else if (path.endsWith('.mjs')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      } else if (path.endsWith('.json')) {
+        res.setHeader('Content-Type', 'application/json');
+      } else if (path.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css; charset=utf-8');
+      }
     }
-  }
-}));
+  }));
+}
 
 app.use(express.json());
 
@@ -227,6 +235,19 @@ app.get('/api/samples/status', (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+if (HAS_DIST) {
+  app.get(/^\/(?!api).*/, (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.sendFile(path.join(DIST_DIR, 'index.html'));
+  });
+} else {
+  app.get('/', (req, res) => {
+    res
+      .status(503)
+      .send("Client bundle not built. Run 'npm run build' for port 3001, or use 'npm run dev' for the Vite dev server.");
+  });
+}
 
 // API Routes
 app.get('/api/samples', (req, res) => {

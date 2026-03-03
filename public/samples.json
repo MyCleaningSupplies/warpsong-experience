@@ -36,6 +36,12 @@
     "/samples/bassoneshots/AKAS%20B8%20-%20B.wav",
     "/samples/bassoneshots/AKAS%20B9%20-%20Am.wav"
   ],
+  "context": [
+    "/samples/context/blankenberge-night.svg",
+    "/samples/context/breath-wave.svg",
+    "/samples/context/cache-window.svg",
+    "/samples/context/sidi-ali.svg"
+  ],
   "drumsamples": [
     "/samples/drumsamples/Africa_93bpm_1bars.wav"
   ],
