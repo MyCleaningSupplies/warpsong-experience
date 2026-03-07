@@ -13,22 +13,248 @@ const tracks = [
     status: "hero",
     validation_hypothesis: "Luisteraar voelt de spanning van afgewezen worden en begrijpt dat de bronmaterialen persoonlijke herinneringen zijn.",
     strudel_code: `
+///BREINDOOD
+///TRACK 1 = BRINKSTRAAT
+
+await initHydra({feedStrudel:1})
+const { chapter, note } = createParams({ chapter: "none", note: "none" })
+
+
+src(s0)
+  .kaleid(H("<4 5 6>"))
+  .diff(osc(1,0.5,5))
+  .modulateScale(osc(2,-0.25,1))
+  .pixelate(() => 8 + a.fft[0] * 20, () => 8 + a.fft[0] * 20)
+  .brightness(() => -0.15 - a.fft[0] * 0.2)
+  .contrast(1.5)
+  .out()
+
 setGainCurve(x => Math.pow(x, 2))
 samples('github:switchangel/breaks')
 samples('github:switchangel/pad')
 samples('github:tidalcycles/uzu-drumkit')
-setCps(128/60/4)
+samples('github:MyCleaningSupplies/breindoodsamples')
 
-let kick = s("bd:1").beat("0,4,8,12", 16).bank("RolandTR909").gain(0.65)
-let snare = s("sd:2, cp:1").beat("4,12", 16).bank("RolandTR909").gain(0.5)
-let hat = s("hh:16").beat("3,7,11,15", 16).bank("RolandTR909").gain(0.45)
-let loop = s("drumsamples").begin(0.048).speed(128/93).loopAt(1).postgain(1.4)
+setCps(175/60/4)
 
+// --- DRUMS ---
+let kick = s("bd:1")
+  .beat("0,4,8,12", 16)
+  .bank("RolandTR909")
+  .room(0.3)
+  .duck(2)
+  .duckattack(0.1)
+  .gain(0.4)
+
+let snare = s("sd:2, cp:1")
+  .beat("4,12", 16)
+  .bank("RolandTR909")
+  .gain(0.7)
+
+let oh = s("oh:16")
+  .beat("2,6,10,14", 16)
+  .bank("RolandTR909")
+  .gain(0.6)
+
+let hh = s("hh:16")
+  .beat("3,7,11,15", 16)
+  .cut(1)
+  .gain(0.6)
+
+let drums_kick = kick
+let drums_groove = stack(kick, snare)
+let drums_full = stack(kick, snare, oh, hh)
+let drums_ghost = stack(kick.gain(0.35), snare.gain(0.3))
+
+// --- BREAKS ---
+let breaks_base = s("breaks/2").fit()
+  .scrub(irand(16).div(16).seg(8))
+  .orbit(2)
+  .phaser(0.7)
+  .room(1)
+
+let breaks_intro = s("breaks/2").fit()
+  .scrub("0 1".div(2)) 
+  .phaser(0.7)
+  .room(1)
+  .gain(0.6)
+
+let breaks_pattern_n = (n_val) => s("breaks/2").n(n_val).fit()
+  .scrub("0 1 2 3 4 4 6 7".div(8))
+  .almostNever(ply("2 | 4"))
+  .orbit(2)
+  .room(1)
+  .gain(0.6)
+
+let breaks_pattern_main = breaks_pattern_n(0) 
+let breaks_pattern_alt1 = breaks_pattern_n(6) 
+let breaks_pattern_alt2 = breaks_pattern_n(5) 
+
+let jungle_rustig = breaks_pattern_main
+  .lpf(1500)
+  .gain(0.4)
+
+let jungle_rustig_alt = breaks_pattern_alt1
+  .lpf(1500)
+  .gain(0.4)
+
+let jungle_agressief = breaks_pattern_main
+  .rib("<30 50>", 2)
+  .gain(0.7)
+
+let jungle_agressief_alt = breaks_pattern_alt1
+  .rib("<30 50>", 2)
+  .gain(0.7)
+
+let breaks_hard_n = (n_val) => breaks_base.n(n_val)
+  .rib("<50 5>", 2)
+  .almostNever(ply("2 | 4"))
+  .gain(0.7)
+
+let breaks_hard_main = breaks_hard_n(0) // Default hard break 1
+let breaks_hard_alt1 = breaks_hard_n(1) // Alternatieve hard break 1
+let breaks_hard_alt2 = breaks_hard_n(2) // Alternatieve hard break 2
+
+let breaks_build_n = (n_val) => breaks_pattern_n(n_val)
+  .rib("<5>", 4)
+  .fast(2)
+  .lpf(saw.range(800, 8000).slow(4))
+  .gain(0.9)
+
+let breaks_build_main = breaks_build_n(4)
+let breaks_build_alt1 = breaks_build_n(5)
+
+// Snare Roll
+let snare_roll = s("sd:2")
+  .bank("RolandTR909")
+  .struct("x*16")
+  .gain(tri.range(0.1, 0.9).slow(2))
+
+
+// --- MELODIES --- 
+
+let rifi_start = s("pre-loop/2").n(3)
+  .scrub("0.15 0.25 0.3 0.5")
+  .slow(1)
+  .cut(2)
+  .lpf(800)
+  .sustain(0.5)
+  .distort(0.8)
+  .phaser(0.5)
+  .room(0.5)
+  .delay(0.5)
+  .gain(0.7)
+  //.almostNever(ply("2 | 4"))
+//.cut(1)
+  //.mask("1 0!7".slow(4))
+
+let rifi_start_alt = s("loops/2").n(3)
+  .scrub("0.15 0.25 0.3 0.5")  // small preview
+  .lpf(400)
+  .room(0.5)
+  .delay(0.5)
+  .gain(0.7)
+  //.almostNever(ply("2 | 4"))
+.cut(1)
+  //.mask("1 0!7".slow(4))
+
+let rifi_loop = s("pre-loop/8").n(4).fit()
+  .scrub(irand(8).div(8).seg(8))   
+  .rib("<45 50 50 55>", 8)        
+  .distort(0.8)          
+  .almostNever(ply("2 | 4"))
+  .lpf(saw.range(800, 8000).slow(4))
+  .delay(0.1)      
+  .sustain(0.5)
+  .room(0.5)
+  .gain(0.6)
+  .orbit(2)
+  .mask("1 1 0 1")    
+
+let rifi_loop_alt = s("loops/8").n(3).fit()
+  .scrub(irand(8).div(8).seg(8))
+  .rib("<10 25>", 2)
+  .lpf(1100)
+  .almostNever(ply("2 | 4"))
+  //.distort(1.3)
+  .sustain(0.5)
+  .delay(0.15)
+  .room(0.5)
+  .gain(0.65)
+  .orbit(2)
+  .mask("1 0 1 1")
+
+
+let misc_unchanged = s("loops").n(3).transpose(-14)
+  .cut(1)
+  .vib("4:.4")
+  .gain(1)
+  .speed(1)
+  .delay(0.5)
+  .phaser(2)
+  .phaserdepth(.1)
+  .distort(1.5)
+  .room(0.5)
+  .sustain(0.4)
+  .lpf(400)
+  .mask("1 0!15".slow(16))
+
+let misc_unchanged_2 = s("pre-loop/8").n(3).transpose(-14)
+  .cut(1)
+  .vib("4:.4")
+  .gain(1)
+  .speed(1)
+  .delay(0.5)
+  .phaser(2)
+  .phaserdepth(.1)
+  .distort(1.5)
+  .room(0.5)
+  .sustain(0.4)
+  .lpf(400)
+  .mask("1 0!15".slow(16))
+
+
+let bourdain_intro = s("voices").n(0) 
+  .gain(0.9)
+  .speed(1)
+  .delay(0.3)
+  .room(0.5)
+  .hpf(400)
+  .sustain(0.4)
+  .mask("1 0!7".slow(8))
+  .crush(4)
+  .phaser(1)
+
+
+let bourdain_intro_2 = s("voices").n(1) 
+  .gain(0.9)
+  .speed(1)
+  .delay(0.3)
+  .room(0.5)
+  .hpf(400)
+  .sustain(0.4)
+  .mask("1 0!7".slow(8))
+  .phaser(1)
+  .crush(4)
+
+all(x=>x.fft(4).scope({pos:0,smear:.95}))
+
+// --- ARRANGEMENT ---
 $: arrange(
-  [8, stack(kick, loop)],
-  [8, stack(kick, snare, loop)],
-  [8, stack(kick, snare, hat, loop)],
-  [8, stack(kick, loop)]
+  [4, stack(misc_unchanged, drums_kick.gain(0.3))],
+  [4, stack(misc_unchanged_2, drums_kick.gain(0.3))],
+  [8, stack(rifi_start.gain(0.3), drums_kick.gain(0.3), jungle_rustig.gain(0.3))],
+  [8, stack(drums_groove, rifi_loop, jungle_rustig)],
+  [8, stack(drums_groove, rifi_loop_alt, jungle_rustig)],
+  [8, stack(drums_full, rifi_loop.phaser(0.5), breaks_hard_main)],
+  [8, stack(drums_full, rifi_loop_alt.phaser(0.5), breaks_hard_main)],
+  [8, stack(bourdain_intro, drums_kick, breaks_hard_alt2)],
+  [8, stack(bourdain_intro_2, drums_kick, breaks_hard_alt2)],
+  [8, stack(rifi_loop_alt.lpf(800), breaks_hard_alt2.gain(0.7))],
+  [8, stack(rifi_loop.lpf(800), drums_groove, breaks_hard_alt2.gain(0.7))],
+  [8, stack(rifi_loop_alt.lpf(800), drums_groove, breaks_hard_alt2.gain(0.7))],
+  [16, stack(drums_full, rifi_loop.phaser(0.5), breaks_hard_alt2)],
+  [16, stack(drums_full, rifi_loop_alt.phaser(0.5), breaks_hard_alt2)],
 ).punchcard()
 `.trim(),
     liner_notes: {
@@ -43,34 +269,54 @@ $: arrange(
     },
     sources: [
       {
-        sample_name: "Doorstep Rhythm",
-        origin_artist: "Field Recording (Abdel Ouzzine)",
-        origin_title: "Brinkstraat Steps",
-        origin_label: "Unreleased Personal Archive",
-        origin_year: "2024",
-        license_or_usage_note: "Eigen opname",
-        why_it_matters_personally: "Het is letterlijk de plek waar ik me uitgesloten voelde.",
-        where_used_in_track: "Intro pulse + low percussion layer"
-      },
-      {
-        sample_name: "Club Exterior Ambience",
-        origin_artist: "Field Recording (Abdel Ouzzine)",
-        origin_title: "Queue Ambience",
-        origin_label: "Unreleased Personal Archive",
-        origin_year: "2024",
-        license_or_usage_note: "Eigen opname",
-        why_it_matters_personally: "De afstand tussen binnen en buiten is hoorbaar als ruislaag.",
-        where_used_in_track: "Background texture (mid section)"
-      },
-      {
-        sample_name: "TR909 Core Kit",
+        sample_name: "tr909",
         origin_artist: "Roland TR-909",
-        origin_title: "BD/SD/HH kit",
+        origin_title: "BD/SD/HH/OH kit",
         origin_label: "Classic Drum Machine Library",
         origin_year: "1983",
         license_or_usage_note: "Library usage in Strudel context",
-        why_it_matters_personally: "Mechanische drums geven het gevoel van een onverbiddelijke omgeving.",
-        where_used_in_track: "Main groove"
+        why_it_matters_personally: "Mechanische drums geven de sociale druk van Brinkstraat.",
+        where_used_in_track: "Kick/snare/hats in alle groove-secties"
+      },
+      {
+        sample_name: "breaks",
+        origin_artist: "Switchangel",
+        origin_title: "breaks/2 slice bank",
+        origin_label: "github:switchangel/breaks",
+        origin_year: "Unknown",
+        license_or_usage_note: "Pack usage according to source terms",
+        why_it_matters_personally: "Jungle-energie als spanning en onrust.",
+        where_used_in_track: "Jungle layers en hard break passages"
+      },
+      {
+        sample_name: "preloop",
+        origin_artist: "BREINDOOD sample bank",
+        origin_title: "pre-loop/2 + pre-loop/8",
+        origin_label: "github:MyCleaningSupplies/breindoodsamples",
+        origin_year: "2024",
+        license_or_usage_note: "Eigen samplebank",
+        why_it_matters_personally: "Melodische fragmenten uit mijn eigen materiaal.",
+        where_used_in_track: "Rifi start/loop motieven en textures"
+      },
+      {
+        sample_name: "loops",
+        origin_artist: "BREINDOOD sample bank",
+        origin_title: "loops + loops/8",
+        origin_label: "github:MyCleaningSupplies/breindoodsamples",
+        origin_year: "2024",
+        license_or_usage_note: "Eigen samplebank",
+        why_it_matters_personally: "Herhalende gedachte-lagen die blijven terugkomen.",
+        where_used_in_track: "Misc bed en alternatieve rifi passages"
+      },
+      {
+        sample_name: "voices",
+        origin_artist: "BREINDOOD sample bank",
+        origin_title: "voices (0/1)",
+        origin_label: "github:MyCleaningSupplies/breindoodsamples",
+        origin_year: "2024",
+        license_or_usage_note: "Eigen samplebank",
+        why_it_matters_personally: "Spoken fragments dragen de persoonlijke laag expliciet.",
+        where_used_in_track: "Bourdain intro-secties"
       }
     ]
   },
@@ -386,6 +632,7 @@ const state = {
 const replRegistry = new Map();
 const playerState = new Map();
 const playerHydraRegistry = new Map();
+const playbackRuntime = new Map();
 
 const app = document.querySelector("#app");
 
@@ -402,6 +649,7 @@ const wallpaperState = {
 let clockTimer = null;
 let desktopHandlersAttached = false;
 let windowManagerHandlersAttached = false;
+let preserveWindowDom = false;
 
 const byId = (id) => document.getElementById(id);
 const nextZ = () => (state.z += 1);
@@ -415,6 +663,524 @@ function excerpt(text, max = 120) {
   const value = String(text || "").trim();
   if (value.length <= max) return value;
   return `${value.slice(0, max).trim()}...`;
+}
+
+function parseCpsFromCode(code) {
+  const match = String(code || "").match(/setCps\(([^)]+)\)/i);
+  if (!match) return 0.5;
+  const expr = match[1].trim();
+  if (!/^[0-9+\-*/().\s]+$/.test(expr)) return 0.5;
+  try {
+    const value = Function(`"use strict"; return (${expr});`)();
+    return Number.isFinite(value) && value > 0 ? value : 0.5;
+  } catch {
+    return 0.5;
+  }
+}
+
+function parseVizSpec(vizSpec, sources) {
+  const sourceList = Array.isArray(sources) ? sources : [];
+  const sourceCount = sourceList.length;
+  if (!sourceCount) return [];
+  const fallback = [0];
+  if (!vizSpec) return fallback;
+  const cleaned = vizSpec.trim();
+  if (!cleaned) return fallback;
+
+  // Allow compact numeric combos like "01" => [0,1]
+  if (/^\d{2,}$/.test(cleaned)) {
+    return [...new Set(cleaned.split("").map((char) => Number.parseInt(char, 10) % sourceCount))];
+  }
+
+  const normalize = (value) => String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const sourceNameIndex = new Map(sourceList.map((source, idx) => [normalize(source.sample_name), idx]));
+  const parts = cleaned
+    .split(/[_+,\s|/]+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const indexes = [];
+  parts.forEach((part) => {
+    const numeric = Number.parseInt(part, 10);
+    if (Number.isFinite(numeric)) {
+      indexes.push(((numeric % sourceCount) + sourceCount) % sourceCount);
+      return;
+    }
+    const token = normalize(part);
+    const exact = sourceNameIndex.get(token);
+    if (typeof exact === "number") {
+      indexes.push(exact);
+      return;
+    }
+    // Partial fallback: viz token "preloop" should match sample_name containing "preloop", etc.
+    for (const [sourceToken, idx] of sourceNameIndex.entries()) {
+      if (sourceToken.includes(token) || token.includes(sourceToken)) {
+        indexes.push(idx);
+        break;
+      }
+    }
+  });
+
+  return indexes.length ? [...new Set(indexes)] : fallback;
+}
+
+function normalizeSampleToken(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function mapTokenToSourceIndexes(token, sources) {
+  const sourceList = Array.isArray(sources) ? sources : [];
+  if (!sourceList.length) return [];
+  const normalized = normalizeSampleToken(token);
+  if (!normalized) return [];
+
+  const aliases = [normalized];
+  if (/(^|[^a-z])(bd|sd|hh|oh|cp)([^a-z]|$)|rolandtr909|tr909/.test(normalized)) aliases.push("tr909");
+  if (/break/.test(normalized)) aliases.push("breaks");
+  if (/preloop|preloops|preloop8|preloop2/.test(normalized)) aliases.push("preloop");
+  if (/loops?/.test(normalized)) aliases.push("loops");
+  if (/voices?/.test(normalized)) aliases.push("voices");
+
+  const hit = new Set();
+  sourceList.forEach((source, index) => {
+    const sampleToken = normalizeSampleToken(source.sample_name);
+    if (!sampleToken) return;
+    for (const alias of aliases) {
+      if (!alias) continue;
+      if (sampleToken === alias || sampleToken.includes(alias) || alias.includes(sampleToken)) {
+        hit.add(index);
+        break;
+      }
+    }
+  });
+  return [...hit];
+}
+
+function extractIdentifiers(expr) {
+  const source = String(expr || "");
+  const ids = source.match(/\b[a-zA-Z_][a-zA-Z0-9_]*\b/g) || [];
+  const reserved = new Set([
+    "let",
+    "const",
+    "var",
+    "await",
+    "return",
+    "stack",
+    "arrange",
+    "silence",
+    "s",
+    "n",
+    "fit",
+    "scrub",
+    "orbit",
+    "phaser",
+    "room",
+    "gain",
+    "lpf",
+    "hpf",
+    "mask",
+    "slow",
+    "fast",
+    "beat",
+    "bank",
+    "duck",
+    "duckattack",
+    "delay",
+    "sustain",
+    "distort",
+    "vib",
+    "phaserdepth",
+    "crush",
+    "transpose",
+    "cut",
+    "begin",
+    "loopAt",
+    "setCps",
+    "setGainCurve",
+    "samples",
+    "all",
+    "x",
+    "scope",
+    "fft",
+    "createParams",
+    "initHydra",
+    "src",
+    "osc",
+    "noise",
+    "kaleid",
+    "diff",
+    "modulateScale",
+    "pixelate",
+    "brightness",
+    "contrast",
+    "out",
+    "irand",
+    "ply",
+    "saw",
+    "tri",
+    "Math",
+    "pow",
+    "chapter",
+    "note",
+    "pos",
+    "smear",
+    "punchcard"
+  ]);
+  return [...new Set(ids.filter((id) => !reserved.has(id)))];
+}
+
+function extractSampleTokensFromExpr(expr) {
+  const source = String(expr || "");
+  const tokens = [];
+
+  source.replace(/s\(\s*["']([^"']+)["']\s*\)/g, (_, content) => {
+    String(content)
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .forEach((part) => tokens.push(part));
+    return _;
+  });
+
+  source.replace(/bank\(\s*["']([^"']+)["']\s*\)/g, (_, content) => {
+    if (content) tokens.push(String(content).trim());
+    return _;
+  });
+
+  return [...new Set(tokens)];
+}
+
+function parseLetDefinitions(code) {
+  const source = String(code || "");
+  const definitions = new Map();
+  const regex = /let\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*([\s\S]*?)(?=\nlet\s+[a-zA-Z_][a-zA-Z0-9_]*\s*=|\n\$:\s*arrange\(|$)/g;
+  let match;
+  while ((match = regex.exec(source)) !== null) {
+    const name = match[1];
+    const expr = String(match[2] || "").trim();
+    definitions.set(name, {
+      name,
+      expr,
+      refs: extractIdentifiers(expr),
+      tokens: extractSampleTokensFromExpr(expr)
+    });
+  }
+  return definitions;
+}
+
+function resolveDefinitionSources(name, definitions, sources, memo = new Map(), visiting = new Set()) {
+  if (memo.has(name)) return memo.get(name);
+  if (visiting.has(name)) return [];
+  visiting.add(name);
+
+  const node = definitions.get(name);
+  if (!node) {
+    visiting.delete(name);
+    memo.set(name, []);
+    return [];
+  }
+
+  const hit = new Set();
+  node.tokens.forEach((token) => {
+    mapTokenToSourceIndexes(token, sources).forEach((idx) => hit.add(idx));
+  });
+  node.refs.forEach((ref) => {
+    if (!definitions.has(ref)) return;
+    resolveDefinitionSources(ref, definitions, sources, memo, visiting).forEach((idx) => hit.add(idx));
+  });
+
+  visiting.delete(name);
+  const result = [...hit];
+  memo.set(name, result);
+  return result;
+}
+
+function inferSourceIndexesFromPattern(patternExpr, sources) {
+  const sourceList = Array.isArray(sources) ? sources : [];
+  if (!sourceList.length) return [];
+  const text = String(patternExpr || "");
+  const hit = new Set();
+  extractSampleTokensFromExpr(text).forEach((token) => {
+    mapTokenToSourceIndexes(token, sourceList).forEach((idx) => hit.add(idx));
+  });
+  return [...hit];
+}
+
+function parseArrangeSections(code) {
+  const source = String(code || "");
+  const arrangeStart = source.indexOf("arrange(");
+  if (arrangeStart === -1) return [];
+
+  let i = arrangeStart + "arrange(".length;
+  let depth = 1;
+  let block = "";
+  let inSingle = false;
+  let inDouble = false;
+
+  while (i < source.length && depth > 0) {
+    const ch = source[i];
+    const prev = source[i - 1];
+
+    if (!inDouble && ch === "'" && prev !== "\\") {
+      inSingle = !inSingle;
+    } else if (!inSingle && ch === '"' && prev !== "\\") {
+      inDouble = !inDouble;
+    } else if (!inSingle && !inDouble) {
+      if (ch === "(") depth += 1;
+      if (ch === ")") depth -= 1;
+    }
+
+    if (depth > 0) block += ch;
+    i += 1;
+  }
+
+  if (!block.trim()) return [];
+  const sections = [];
+  const chunks = [];
+  let chunk = "";
+  let bracketDepth = 0;
+  inSingle = false;
+  inDouble = false;
+
+  for (let cursor = 0; cursor < block.length; cursor += 1) {
+    const ch = block[cursor];
+    const prev = block[cursor - 1];
+
+    if (!inDouble && ch === "'" && prev !== "\\") {
+      inSingle = !inSingle;
+    } else if (!inSingle && ch === '"' && prev !== "\\") {
+      inDouble = !inDouble;
+    } else if (!inSingle && !inDouble) {
+      if (ch === "[") bracketDepth += 1;
+      if (ch === "]") bracketDepth -= 1;
+    }
+
+    if (bracketDepth > 0 || (bracketDepth === 0 && ch === "]")) chunk += ch;
+    if (bracketDepth === 0 && chunk.trim()) {
+      chunks.push(chunk.trim());
+      chunk = "";
+    }
+  }
+
+  for (const rawChunk of chunks) {
+    const match = rawChunk.match(/^\[\s*(\d+)\s*,([\s\S]*)\]$/);
+    if (!match) continue;
+    const cycles = Number.parseInt(match[1], 10);
+    if (!Number.isFinite(cycles) || cycles <= 0) continue;
+    const patternExpr = match[2] || "";
+    const vizMatch = patternExpr.match(/\.viz\((["'])(.*?)\1\)/);
+    sections.push({
+      cycles,
+      patternExpr,
+      vizSpec: vizMatch ? vizMatch[2] : ""
+    });
+  }
+  return sections;
+}
+
+function getPlaybackPlan(track) {
+  if (!track || !track.strudel_code) return null;
+  const parsedSections = parseArrangeSections(track.strudel_code);
+  if (!parsedSections.length) return null;
+  const definitions = parseLetDefinitions(track.strudel_code);
+  const memo = new Map();
+  const definitionNames = new Set(definitions.keys());
+
+  const totalCycles = parsedSections.reduce((sum, section) => sum + section.cycles, 0);
+  const sections = parsedSections.map((section, index) => {
+    const symbolNames = extractIdentifiers(section.patternExpr).filter((name) => definitionNames.has(name));
+    const resolvedFromSymbols = new Set();
+    symbolNames.forEach((name) => {
+      resolveDefinitionSources(name, definitions, track.sources || [], memo).forEach((idx) => resolvedFromSymbols.add(idx));
+    });
+
+    const directSources = inferSourceIndexesFromPattern(section.patternExpr, track.sources || []);
+    directSources.forEach((idx) => resolvedFromSymbols.add(idx));
+    const finalSources = section.vizSpec
+      ? parseVizSpec(section.vizSpec, track.sources || [])
+      : [...resolvedFromSymbols];
+
+    return {
+      idx: index,
+      cycles: section.cycles,
+      label: symbolNames.length ? symbolNames.slice(0, 3).join(" + ") : `Section ${index + 1}`,
+      sourceIndexes: finalSources,
+      symbolNames,
+      vizSpec: section.vizSpec,
+      energy: 0.3 + (index / Math.max(1, parsedSections.length - 1)) * 0.4
+    };
+  });
+
+  return {
+    cps: parseCpsFromCode(track.strudel_code),
+    totalCycles,
+    sections
+  };
+}
+
+function clearPlaybackRuntime(windowId) {
+  const runtime = playbackRuntime.get(windowId);
+  if (!runtime) return;
+  if (runtime.timer) window.clearInterval(runtime.timer);
+  playbackRuntime.delete(windowId);
+}
+
+function highlightActiveSources(windowId, sourceIndexes = [], trackId = null) {
+  const selectors = [`.window[data-id="${windowId}"]`];
+  if (trackId) selectors.push(`.window[data-id="source-${trackId}"]`);
+  selectors.forEach((selector) => {
+    const root = document.querySelector(selector);
+    if (!root) return;
+    root.querySelectorAll("[data-sample-detail-index]").forEach((el) => {
+      const idx = Number.parseInt(el.getAttribute("data-sample-detail-index") || "", 10);
+      if (sourceIndexes.includes(idx)) {
+        el.classList.add("is-playing-source");
+      } else {
+        el.classList.remove("is-playing-source");
+      }
+    });
+  });
+}
+
+function setPlaybackSectionLabel(windowId, label) {
+  const root = document.querySelector(`.window[data-id="${windowId}"]`);
+  if (!root) return;
+  const field = root.querySelector(`[data-play-section="${windowId}"]`);
+  if (field) field.textContent = label || "Idle";
+  const fieldLarge = root.querySelector(`[data-play-section-large="${windowId}"]`);
+  if (fieldLarge) fieldLarge.textContent = label || "Idle";
+}
+
+function setPlaybackSourcesLabel(windowId, sourceIndexes = [], trackId = null) {
+  const root = document.querySelector(`.window[data-id="${windowId}"]`);
+  if (!root) return;
+  const track = trackId ? trackMap.get(trackId) : null;
+  const names = sourceIndexes
+    .map((idx) => track?.sources?.[idx]?.sample_name)
+    .filter(Boolean)
+    .join(" + ");
+  const field = root.querySelector(`[data-play-sources-large="${windowId}"]`);
+  if (field) field.textContent = names || "—";
+}
+
+function applyPlaybackScene(windowId, trackId, scene) {
+  setPlaybackSectionLabel(windowId, scene?.label || "Idle");
+  setPlaybackSourcesLabel(windowId, scene?.sourceIndexes || [], trackId);
+  highlightActiveSources(windowId, scene?.sourceIndexes || [], trackId);
+
+  const playerWindow = document.querySelector(`.window[data-id="${windowId}"]`);
+  if (playerWindow) {
+    if (scene) {
+      playerWindow.style.setProperty("--react-hue", String(scene.hue || 210));
+      playerWindow.style.setProperty("--react-strength", String(scene.energy || 0.2));
+      playerWindow.classList.add("window-reactive");
+      playerWindow.setAttribute("data-react-scene", scene.label || "");
+      playerWindow.setAttribute("data-react-sources", (scene.sourceIndexes || []).join(","));
+      if (scene.vizSpec) playerWindow.setAttribute("data-react-viz", scene.vizSpec);
+      else playerWindow.removeAttribute("data-react-viz");
+    } else {
+      playerWindow.style.removeProperty("--react-hue");
+      playerWindow.style.removeProperty("--react-strength");
+      playerWindow.classList.remove("window-reactive");
+      playerWindow.removeAttribute("data-react-scene");
+      playerWindow.removeAttribute("data-react-sources");
+      playerWindow.removeAttribute("data-react-viz");
+    }
+  }
+
+  const sourceWindow = trackId ? document.querySelector(`.window[data-id="source-${trackId}"]`) : null;
+  if (sourceWindow) {
+    if (scene) {
+      sourceWindow.style.setProperty("--react-hue", String(scene.hue || 210));
+      sourceWindow.style.setProperty("--react-strength", String(scene.energy || 0.2));
+      sourceWindow.classList.add("window-reactive-source");
+      if (scene.vizSpec) sourceWindow.setAttribute("data-react-viz", scene.vizSpec);
+      else sourceWindow.removeAttribute("data-react-viz");
+    } else {
+      sourceWindow.style.removeProperty("--react-hue");
+      sourceWindow.style.removeProperty("--react-strength");
+      sourceWindow.classList.remove("window-reactive-source");
+      sourceWindow.removeAttribute("data-react-viz");
+    }
+  }
+
+  const desktopRoot = document.querySelector(".desktop");
+  if (desktopRoot) {
+    if (scene) {
+      desktopRoot.style.setProperty("--desktop-react-hue", String(scene.hue || 210));
+      desktopRoot.style.setProperty("--desktop-react-strength", String(scene.energy || 0.2));
+      desktopRoot.classList.add("desktop-reactive");
+    } else {
+      desktopRoot.style.removeProperty("--desktop-react-hue");
+      desktopRoot.style.removeProperty("--desktop-react-strength");
+      desktopRoot.classList.remove("desktop-reactive");
+    }
+  }
+}
+
+function startPlaybackRuntime(windowId, track) {
+  clearPlaybackRuntime(windowId);
+  const plan = getPlaybackPlan(track);
+  if (!plan) return;
+
+  const runtime = {
+    startedAt: performance.now(),
+    timer: 0,
+    sectionIndex: -1,
+    phaseKey: "",
+    trackId: track.id,
+    currentScene: null
+  };
+
+  const sectionBoundaries = [];
+  let cumulative = 0;
+  plan.sections.forEach((section) => {
+    cumulative += section.cycles;
+    sectionBoundaries.push(cumulative);
+  });
+
+  runtime.timer = window.setInterval(() => {
+    const elapsedSec = (performance.now() - runtime.startedAt) / 1000;
+    const currentCycle = elapsedSec * plan.cps;
+    let sectionIndex = sectionBoundaries.findIndex((edge) => currentCycle < edge);
+    if (sectionIndex === -1) {
+      stopTrack(windowId);
+      return;
+    }
+
+    const activeSection = plan.sections[sectionIndex];
+    if (!activeSection) return;
+    const sectionStart = sectionIndex === 0 ? 0 : sectionBoundaries[sectionIndex - 1];
+    const sectionProgress = (currentCycle - sectionStart) / Math.max(activeSection.cycles, 1);
+    const sourceCount = Math.max((track.sources || []).length, 1);
+    const sectionSources = activeSection.sourceIndexes?.length ? activeSection.sourceIndexes : [sectionIndex % sourceCount];
+    const primary = sectionSources[0];
+    const comboSources = sectionSources.length > 1 ? sectionSources : [primary, (primary + 1) % sourceCount];
+    const comboOn = sectionProgress > 0.5;
+    const activeSources = comboOn ? comboSources : [primary];
+    const phase = comboOn ? "combo" : "single";
+    const phaseKey = `${sectionIndex}:${phase}:${activeSources.join("-")}`;
+
+    if (phaseKey !== runtime.phaseKey || sectionIndex !== runtime.sectionIndex) {
+      runtime.sectionIndex = sectionIndex;
+      runtime.phaseKey = phaseKey;
+      const scene = {
+        label: `${activeSection.label}${activeSection.vizSpec ? ` [viz:${activeSection.vizSpec}]` : ""} · ${comboOn ? "mix" : "single"}`,
+        sourceIndexes: activeSources,
+        energy: Math.min(0.92, activeSection.energy + (comboOn ? 0.2 : 0.04)),
+        hue: 200 + ((primary * 47 + (comboOn ? 90 : 0)) % 160),
+        vizSpec: activeSection.vizSpec || ""
+      };
+      runtime.currentScene = scene;
+      applyPlaybackScene(windowId, track.id, scene);
+      const entry = playerHydraRegistry.get(windowId);
+      if (entry?.controls) {
+        entry.controls.energy = scene.energy;
+        entry.controls.hue = scene.hue;
+      }
+    }
+  }, 120);
+
+  playbackRuntime.set(windowId, runtime);
 }
 
 function getDesktopBounds() {
@@ -447,6 +1213,51 @@ function getWorkspace(trackId) {
 
 function findWindowById(id) {
   return state.windows.find((windowItem) => windowItem.id === id);
+}
+
+function syncWindowLayerFromState(windowsLayer) {
+  if (!windowsLayer) return false;
+  const stateIds = new Set(state.windows.map((windowItem) => windowItem.id));
+  let valid = true;
+
+  state.windows.forEach((windowItem) => {
+    const el = windowsLayer.querySelector(`.window[data-id="${windowItem.id}"]`);
+    if (windowItem.minimized) {
+      if (el) el.style.display = "none";
+      return;
+    }
+    if (!el) {
+      valid = false;
+      return;
+    }
+
+    el.style.display = "";
+    el.style.left = `${windowItem.x}px`;
+    el.style.top = `${windowItem.y}px`;
+    el.style.width = `${windowItem.w}px`;
+    el.style.height = `${windowItem.h}px`;
+    el.style.zIndex = String(windowItem.z);
+    el.className = `window ${windowItem.className} ${windowItem.maximized ? "window-maximized" : ""}`;
+
+    const title = el.querySelector(".title-bar-text");
+    if (title && title.textContent !== windowItem.title) title.textContent = windowItem.title;
+
+    const maxBtn = el.querySelector(`[data-maximize="${windowItem.id}"]`);
+    if (maxBtn) maxBtn.setAttribute("aria-label", windowItem.maximized ? "Restore" : "Maximize");
+
+    const resizer = el.querySelector(".window-resizer");
+    if (resizer) {
+      resizer.style.display = windowItem.maximized ? "none" : "";
+    }
+  });
+
+  windowsLayer.querySelectorAll(".window[data-id]").forEach((el) => {
+    const id = el.getAttribute("data-id");
+    if (!id) return;
+    if (!stateIds.has(id)) valid = false;
+  });
+
+  return valid;
 }
 
 function persistWorkspaceWindow(windowState) {
@@ -729,7 +1540,7 @@ async function mountPlayerHydra(windowId, trackId) {
     resizeHandler: null,
     fallbackFrame: 0,
     fallbackTime: 0,
-    controls: { energy: playerState.get(windowId)?.playing ? 0.45 : 0.16 },
+    controls: { energy: playerState.get(windowId)?.playing ? 0.45 : 0.16, hue: 220 },
     isPlaying: !!playerState.get(windowId)?.playing
   };
   playerHydraRegistry.set(windowId, entry);
@@ -753,9 +1564,9 @@ async function mountPlayerHydra(windowId, trackId) {
     synth
       .osc(14, 0.06, 1)
       .color(
-        () => 0.12 + controls.energy * 0.8,
-        () => 0.2 + Math.sin(synth.time * 0.16) * 0.18 + controls.energy * 0.28,
-        () => 0.45 + controls.energy * 0.45
+        () => 0.12 + controls.energy * 0.4 + 0.3 * Math.sin(synth.time * 0.18 + controls.hue * 0.01),
+        () => 0.2 + controls.energy * 0.22 + 0.26 * Math.sin(synth.time * 0.21 + controls.hue * 0.015),
+        () => 0.35 + controls.energy * 0.42 + 0.3 * Math.sin(synth.time * 0.14 + controls.hue * 0.009)
       )
       .modulate(synth.noise(2.8, 0.12), () => 0.06 + controls.energy * 0.16)
       .kaleid(() => 3 + controls.energy * 5)
@@ -781,14 +1592,21 @@ function setPlayerHydraPlayback(windowId, playing) {
   const entry = playerHydraRegistry.get(windowId);
   if (!entry) return;
   entry.isPlaying = playing;
-  if (entry.controls) entry.controls.energy = playing ? 0.48 : 0.16;
+  if (entry.controls) {
+    entry.controls.energy = playing ? 0.48 : 0.16;
+    if (!playing) entry.controls.hue = 220;
+  }
 }
 
 function createWindow({ id, title, body, x, y, w, h, className, type, trackId, kind, minW = 260, minH = 180 }) {
   const existing = findWindowById(id);
   if (existing) {
     existing.title = title;
-    existing.body = body;
+    const isPlaying = existing.kind === "player" && !!playerState.get(existing.id)?.playing;
+    // Avoid replacing a live player body; this remounts the REPL iframe.
+    if (!(existing.kind === "player" && isPlaying)) {
+      existing.body = body;
+    }
     existing.className = className || "";
     existing.type = type;
     existing.trackId = trackId || null;
@@ -796,6 +1614,7 @@ function createWindow({ id, title, body, x, y, w, h, className, type, trackId, k
     existing.minimized = false;
     existing.z = nextZ();
     state.activeId = existing.id;
+    preserveWindowDom = true;
     renderDesktop();
     return existing;
   }
@@ -875,6 +1694,7 @@ function minimizeWindow(id) {
     state.activeId = nextActive ? nextActive.id : null;
   }
   persistWorkspaceWindow(windowState);
+  preserveWindowDom = true;
   renderDesktop();
 }
 
@@ -883,6 +1703,7 @@ function toggleTaskWindow(id) {
   if (!windowState) return;
   if (windowState.minimized) {
     windowState.minimized = false;
+    preserveWindowDom = true;
     focusWindow(id);
     return;
   }
@@ -890,6 +1711,7 @@ function toggleTaskWindow(id) {
     minimizeWindow(id);
     return;
   }
+  preserveWindowDom = true;
   focusWindow(id);
 }
 
@@ -913,6 +1735,7 @@ function toggleMaximizeWindow(id) {
     windowState.prevRect = null;
   }
   persistWorkspaceWindow(windowState);
+  preserveWindowDom = true;
   focusWindow(id);
 }
 
@@ -1456,12 +2279,17 @@ function buildPlayerBody(track) {
         <div class="player-header-top">Strudel Player</div>
         <div class="player-title">${track.title}</div>
         <div class="player-sub">${track.location} · ${track.mood} · target ${track.duration_target}</div>
+        <div class="player-purpose">Doel: luister de track en klik op <strong>Sample Origins</strong> om bron + betekenis te zien.</div>
       </div>
       <div class="player-controls">
         <button class="button ${disabled ? "is-disabled" : ""}" ${disabled ? "disabled" : ""} data-play="player-${track.id}">Play</button>
         <button class="button ${disabled ? "is-disabled" : ""}" ${disabled ? "disabled" : ""} data-stop="player-${track.id}">Stop</button>
         <button class="button" data-reset="player-${track.id}">Reset</button>
         ${track.id === "t3" ? `<button class="button" data-identity-error="1">Trigger Error</button>` : ""}
+      </div>
+      <div class="player-live-strip">
+        <span class="player-live-pill">Section: <strong data-play-section-large="player-${track.id}">Idle</strong></span>
+        <span class="player-live-pill">Sources: <strong data-play-sources-large="player-${track.id}">—</strong></span>
       </div>
       ${
         showXpMediaLayout
@@ -1481,6 +2309,7 @@ function buildPlayerBody(track) {
           </div>
           <fieldset class="media-sources-pane">
             <legend>Sample Origins</legend>
+            <div class="origin-help">Sample = eerder opgenomen geluid. Klik op een kaart voor herkomst en persoonlijke context.</div>
             <div class="media-sources-grid">
               ${
                 conciseSources.length
@@ -1533,6 +2362,7 @@ function buildPlayerBody(track) {
           </div>
           <fieldset class="v2-right-origin">
             <legend>Origins</legend>
+            <div class="origin-help">Klik op een bron om te zien waar het sample vandaan komt en waarom het belangrijk is.</div>
             ${conciseSources
               .map(
                 (sample) => `
@@ -1571,6 +2401,7 @@ function buildPlayerBody(track) {
             </div>
             <fieldset class="v3-origins">
               <legend>Sample Origins</legend>
+              <div class="origin-help">Open bronkaarten voor: herkomst, jaar, trackgebruik en persoonlijke link.</div>
               ${conciseSources
                 .map(
                   (sample) => `
@@ -1630,6 +2461,7 @@ function buildPlayerBody(track) {
         <p class="status-bar-field">${track.location}</p>
         <p class="status-bar-field">${track.duration_target}</p>
         <p class="status-bar-field">${VARIANTS[state.designVariant].short}</p>
+        <p class="status-bar-field">Section: <span data-play-section="player-${track.id}">Idle</span></p>
       </div>
       ${disabled ? `<div class="player-placeholder-note">Track is nog in development. Dit venster toont de beoogde applicatie-structuur.</div>` : ""}
     </div>
@@ -1696,16 +2528,92 @@ function openTrackWorkspace(trackId) {
 
   const preset = computeWorkspaceRects(trackId, state.designVariant);
   const restoreRect = restoreWorkspace(trackId, "player", state.designVariant);
-  const nextRect = restoreRect ? { x: restoreRect.x, y: restoreRect.y, w: restoreRect.w, h: restoreRect.h } : preset.player;
+  const safePlayerRestore = restoreRect && !restoreRect.maximized ? restoreRect : null;
+  const nextRect = safePlayerRestore
+    ? { x: safePlayerRestore.x, y: safePlayerRestore.y, w: safePlayerRestore.w, h: safePlayerRestore.h }
+    : preset.player;
   const playerWindow = openWorkspaceWindow(track, "player", nextRect);
-  if (restoreRect && restoreRect.maximized && playerWindow && !playerWindow.maximized) {
-    toggleMaximizeWindow(playerWindow.id);
+
+  const sourceRestore = restoreWorkspace(trackId, "source", state.designVariant);
+  const safeSourceRestore = sourceRestore && !sourceRestore.maximized ? sourceRestore : null;
+  const sourceRect = safeSourceRestore
+    ? { x: safeSourceRestore.x, y: safeSourceRestore.y, w: safeSourceRestore.w, h: safeSourceRestore.h }
+    : preset.source;
+  const sourceWindow = openWorkspaceWindow(track, "source", sourceRect);
+
+  if (sourceWindow && playerWindow) {
+    const overlapX = Math.max(
+      0,
+      Math.min(playerWindow.x + playerWindow.w, sourceWindow.x + sourceWindow.w) - Math.max(playerWindow.x, sourceWindow.x)
+    );
+    const overlapY = Math.max(
+      0,
+      Math.min(playerWindow.y + playerWindow.h, sourceWindow.y + sourceWindow.h) - Math.max(playerWindow.y, sourceWindow.y)
+    );
+    const overlapArea = overlapX * overlapY;
+    const sourceArea = Math.max(1, sourceWindow.w * sourceWindow.h);
+    if (overlapArea / sourceArea > 0.72) {
+      sourceWindow.x = preset.source.x;
+      sourceWindow.y = preset.source.y;
+      sourceWindow.w = preset.source.w;
+      sourceWindow.h = preset.source.h;
+      sourceWindow.maximized = false;
+      sourceWindow.prevRect = null;
+      persistWorkspaceWindow(sourceWindow);
+    }
   }
+
+  preserveWindowDom = true;
   focusWindow(`player-${track.id}`);
 
   if (track.id === "t3") {
     showSystemError();
   }
+}
+
+async function runPlaybackUiSelfTest(trackId = "t1") {
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const result = [];
+
+  state.desktopStep = "select";
+  openTrackWorkspace(trackId);
+  await wait(120);
+
+  const playerId = `player-${trackId}`;
+  const replBefore = replRegistry.get(playerId);
+  playTrack(playerId);
+  await wait(240);
+  const playingAfterPlay = !!playerState.get(playerId)?.playing;
+  result.push({ step: "play", pass: playingAfterPlay });
+
+  toggleMaximizeWindow(playerId);
+  await wait(180);
+  const replAfterMax = replRegistry.get(playerId);
+  result.push({ step: "maximize_keeps_repl_node", pass: replBefore === replAfterMax });
+
+  toggleMaximizeWindow(playerId);
+  await wait(180);
+  const replAfterRestore = replRegistry.get(playerId);
+  result.push({ step: "restore_keeps_repl_node", pass: replAfterMax === replAfterRestore });
+
+  minimizeWindow(playerId);
+  await wait(180);
+  toggleTaskWindow(playerId);
+  await wait(220);
+  const replAfterMinRestore = replRegistry.get(playerId);
+  result.push({ step: "min_restore_keeps_repl_node", pass: replAfterRestore === replAfterMinRestore });
+
+  stopTrack(playerId);
+  await wait(250);
+  result.push({ step: "stop_after_state_changes", pass: !playerState.get(playerId)?.playing });
+
+  openTrackWorkspace(trackId);
+  await wait(180);
+  const replAfterReopen = replRegistry.get(playerId);
+  result.push({ step: "reopen_keeps_repl_node", pass: replAfterMinRestore === replAfterReopen });
+
+  console.table(result);
+  return result;
 }
 
 function mountRepl(windowId, code) {
@@ -1715,16 +2623,47 @@ function mountRepl(windowId, code) {
   let repl = replRegistry.get(windowId);
   if (!repl) {
     repl = document.createElement("strudel-editor");
+    repl.style.display = "block";
+    repl.style.width = "100%";
+    repl.style.height = "100%";
+    repl.dataset.currentCode = "";
     replRegistry.set(windowId, repl);
   }
 
   if (!container.contains(repl)) {
     container.innerHTML = "";
     container.appendChild(repl);
+    if (!playerState.get(windowId)?.playing) resetReplViewport(repl);
   }
 
-  repl.setAttribute("code", code);
+  const nextCode = String(code || "");
+  const isPlaying = !!playerState.get(windowId)?.playing;
+  const currentCode = repl.dataset.currentCode || "";
+
+  // Important: avoid resetting code while playing; it reinitializes the editor/iframe.
+  if (currentCode !== nextCode && !isPlaying) {
+    repl.setAttribute("code", nextCode);
+    repl.dataset.currentCode = nextCode;
+  }
+
   forceReplIframeFullSize(repl);
+}
+
+function getCompatRuntimeCode(track, compatibilityMode = false) {
+  if (!track) return "";
+  const source = String(track.strudel_code || "");
+  if (!compatibilityMode) return source;
+
+  // Keep authored code intact in data/UI; only fallback for embedded runtime compatibility.
+  let code = source;
+  if (track.id === "t1") {
+    const gainStart = code.indexOf("setGainCurve(");
+    if (gainStart > 0) code = code.slice(gainStart);
+    code = code
+      .replace(/^all\(x=>x\.fft\(4\)\.scope\(\{[\s\S]*?\}\)\)\s*$/gm, "")
+      .replace(/\.transpose\(\s*-?\d+(?:\.\d+)?\s*\)/g, "");
+  }
+  return code;
 }
 
 function forceReplIframeFullSize(repl) {
@@ -1740,11 +2679,17 @@ function forceReplIframeFullSize(repl) {
     iframe.style.height = "100%";
     iframe.style.border = "0";
     iframe.style.display = "block";
+    iframe.style.position = "relative";
+    iframe.style.top = "0";
+    iframe.style.left = "0";
+    iframe.style.inset = "auto";
+    iframe.style.verticalAlign = "top";
 
     const parent = iframe.parentElement;
     if (parent) {
       parent.style.width = "100%";
       parent.style.height = "100%";
+      parent.style.overflow = "hidden";
     }
 
     return true;
@@ -1755,6 +2700,33 @@ function forceReplIframeFullSize(repl) {
   const timer = setInterval(() => {
     tries += 1;
     if (tryPatch() || tries > 60) clearInterval(timer);
+  }, 100);
+}
+
+function resetReplViewport(repl) {
+  const apply = () => {
+    const root = repl.shadowRoot;
+    const iframe = root?.querySelector("iframe");
+    if (!iframe) return false;
+    try {
+      const doc = iframe.contentDocument;
+      const win = iframe.contentWindow;
+      if (win) win.scrollTo(0, 0);
+      if (doc?.documentElement) doc.documentElement.scrollTop = 0;
+      if (doc?.body) doc.body.scrollTop = 0;
+      const scroller = doc?.querySelector(".cm-scroller");
+      if (scroller) scroller.scrollTop = 0;
+    } catch {
+      // no-op
+    }
+    return true;
+  };
+
+  if (apply()) return;
+  let tries = 0;
+  const timer = setInterval(() => {
+    tries += 1;
+    if (apply() || tries > 40) clearInterval(timer);
   }, 100);
 }
 
@@ -1787,24 +2759,108 @@ function showSystemError() {
   overlay.querySelector(".error-close")?.addEventListener("click", () => overlay.remove());
 }
 
-function playTrack(windowId) {
+async function playTrack(windowId) {
   const repl = replRegistry.get(windowId);
-  if (repl && repl.editor) repl.editor.evaluate();
+  const windowState = findWindowById(windowId);
+  const track = windowState?.trackId ? trackMap.get(windowState.trackId) : null;
+  const editor = repl?.editor;
+  if (!editor || typeof editor.evaluate !== "function") return;
+
+  const runEvaluate = async (code) => {
+    if (typeof editor.setCode === "function") {
+      editor.setCode(code);
+      if (repl) repl.dataset.currentCode = code;
+    }
+    await Promise.resolve(editor.evaluate());
+  };
+
+  const preferCompat = track?.id === "t1";
+
+  try {
+    await runEvaluate(getCompatRuntimeCode(track, preferCompat));
+  } catch (error) {
+    const message = String(error?.message || error || "");
+    const shouldRetryCompat =
+      !preferCompat &&
+      track?.id === "t1" &&
+      (message.includes("undefined") || message.includes("pattern") || message.includes("transpose"));
+
+    if (!shouldRetryCompat) {
+      playerState.set(windowId, { playing: false });
+      setPlayerHydraPlayback(windowId, false);
+      throw error;
+    }
+
+    console.warn("Retrying playback in compatibility mode for embedded Strudel runtime.");
+    await runEvaluate(getCompatRuntimeCode(track, true));
+  }
+
   playerState.set(windowId, { playing: true });
   setPlayerHydraPlayback(windowId, true);
+  if (track) startPlaybackRuntime(windowId, track);
+}
+
+function stopEditorSafely(editor) {
+  if (!editor) return false;
+  if (typeof editor.stop === "function") {
+    editor.stop();
+    return true;
+  }
+  if (typeof editor.hush === "function") {
+    editor.hush();
+    return true;
+  }
+  if (typeof editor.setCode === "function" && typeof editor.evaluate === "function") {
+    editor.setCode("$: silence");
+    editor.evaluate();
+    return true;
+  }
+  return false;
+}
+
+function stopAllEditors() {
+  let stopped = false;
+  replRegistry.forEach((repl) => {
+    if (repl?.editor) {
+      stopped = stopEditorSafely(repl.editor) || stopped;
+    }
+  });
+  return stopped;
+}
+
+function stopTrackWithRetry(windowId, attempts = 6) {
+  let tryCount = 0;
+  const tick = () => {
+    tryCount += 1;
+    const repl = replRegistry.get(windowId);
+    const editor = repl?.editor;
+    const done = stopEditorSafely(editor) || stopAllEditors();
+    if (done || tryCount >= attempts) return;
+    window.setTimeout(tick, 120);
+  };
+  tick();
 }
 
 function stopTrack(windowId) {
-  const repl = replRegistry.get(windowId);
-  if (repl && repl.editor) repl.editor.stop();
+  stopTrackWithRetry(windowId);
   playerState.set(windowId, { playing: false });
   setPlayerHydraPlayback(windowId, false);
+  clearPlaybackRuntime(windowId);
+  const windowState = findWindowById(windowId);
+  applyPlaybackScene(windowId, windowState?.trackId || null, null);
 }
 
 function resetTrack(windowId, code) {
   const repl = replRegistry.get(windowId);
   if (!repl || !repl.editor) return;
+  if (typeof repl.editor.stop === "function") repl.editor.stop();
   repl.editor.setCode(code);
+  repl.dataset.currentCode = String(code || "");
+  playerState.set(windowId, { playing: false });
+  setPlayerHydraPlayback(windowId, false);
+  clearPlaybackRuntime(windowId);
+  const windowState = findWindowById(windowId);
+  applyPlaybackScene(windowId, windowState?.trackId || null, null);
 }
 
 function attachDragHandlers() {
@@ -1815,6 +2871,8 @@ function attachDragHandlers() {
 
     const header = windowEl.querySelector(".title-bar");
     if (!header) return;
+    if (header.dataset.dragBound === "1") return;
+    header.dataset.dragBound = "1";
 
     let startX = 0;
     let startY = 0;
@@ -1837,6 +2895,7 @@ function attachDragHandlers() {
       windowState.x = parseInt(windowEl.style.left || "0", 10);
       windowState.y = parseInt(windowEl.style.top || "0", 10);
       persistWorkspaceWindow(windowState);
+      preserveWindowDom = true;
       renderDesktop();
     };
 
@@ -1868,6 +2927,8 @@ function attachResizeHandlers() {
 
     const windowEl = handle.closest(".window");
     if (!windowEl) return;
+    if (handle.dataset.resizeBound === "1") return;
+    handle.dataset.resizeBound = "1";
 
     let startX = 0;
     let startY = 0;
@@ -1892,6 +2953,7 @@ function attachResizeHandlers() {
       windowState.w = parseInt(windowEl.style.width || "0", 10);
       windowState.h = parseInt(windowEl.style.height || "0", 10);
       persistWorkspaceWindow(windowState);
+      preserveWindowDom = true;
       renderDesktop();
     };
 
@@ -1991,11 +3053,12 @@ function renderIntroStep() {
       </div>
       <div class="window-body login-body">
         <div class="login-title">Head As OS</div>
-        <p>You are browsing my mental stack.</p>
-        <p>Each song opens 3 windows:<br/>1. Strudel Player<br/>2. Liner Notes<br/>3. Samples</p>
-        <p>Start with one song and move through the chapters.</p>
+        <p>Dit is een interactief album als desktop.</p>
+        <p>Klik een track om muziek te luisteren en direct te zien:<br/>1. code<br/>2. sample herkomst<br/>3. persoonlijke context</p>
+        <p>Tip: gebruik <strong>Start -> Programs -> Applications</strong> of klik de desktop-iconen.</p>
         <div class="login-actions">
           <button class="button" data-enter-library="1">Go to songs</button>
+          <button class="button" data-open-first-track="1">Open 01_Brinkstraat</button>
         </div>
       </div>
     </section>
@@ -2017,7 +3080,7 @@ function renderDesktopShell(visibleTracks) {
       <div id="startMenuHost"></div>
       <div id="windows" class="windows-layer"></div>
       <div id="taskbar" class="taskbar">
-        <button id="startBtn" class="start-btn">BREINDOOD</button>
+        <button id="startBtn" class="start-btn">Start · BREINDOOD</button>
         <div id="taskbarWindows" class="taskbar-windows"></div>
         <div class="taskbar-right">
           <div class="variant-badge">${VARIANTS[state.designVariant].label}</div>
@@ -2117,28 +3180,32 @@ function renderDesktop() {
 
   const windowsLayer = byId("windows");
   if (windowsLayer) {
-    windowsLayer.innerHTML = state.windows
-      .filter((windowItem) => !windowItem.minimized)
-      .map(
-        (windowItem) => `
-          <div class="window ${windowItem.className} ${windowItem.maximized ? "window-maximized" : ""}" data-id="${windowItem.id}" style="left:${
-            windowItem.x
-          }px; top:${windowItem.y}px; width:${windowItem.w}px; height:${windowItem.h}px; z-index:${windowItem.z};">
-            <div class="title-bar">
-              <div class="title-bar-text">${windowItem.title}</div>
-              <div class="title-bar-controls">
-                <button aria-label="Minimize" data-minimize="${windowItem.id}" class="window-control"></button>
-                <button aria-label="${windowItem.maximized ? "Restore" : "Maximize"}" data-maximize="${windowItem.id}" class="window-control"></button>
-                <button aria-label="Close" data-close="${windowItem.id}" class="window-control"></button>
+    const reuse = preserveWindowDom && syncWindowLayerFromState(windowsLayer);
+    if (!reuse) {
+      windowsLayer.innerHTML = state.windows
+        .filter((windowItem) => !windowItem.minimized)
+        .map(
+          (windowItem) => `
+            <div class="window ${windowItem.className} ${windowItem.maximized ? "window-maximized" : ""}" data-id="${windowItem.id}" style="left:${
+              windowItem.x
+            }px; top:${windowItem.y}px; width:${windowItem.w}px; height:${windowItem.h}px; z-index:${windowItem.z};">
+              <div class="title-bar">
+                <div class="title-bar-text">${windowItem.title}</div>
+                <div class="title-bar-controls">
+                  <button aria-label="Minimize" data-minimize="${windowItem.id}" class="window-control"></button>
+                  <button aria-label="${windowItem.maximized ? "Restore" : "Maximize"}" data-maximize="${windowItem.id}" class="window-control"></button>
+                  <button aria-label="Close" data-close="${windowItem.id}" class="window-control"></button>
+                </div>
               </div>
+              <div class="window-body">${windowItem.body}</div>
+              ${windowItem.maximized ? "" : `<div class="window-resizer" data-resize="${windowItem.id}"></div>`}
             </div>
-            <div class="window-body">${windowItem.body}</div>
-            ${windowItem.maximized ? "" : `<div class="window-resizer" data-resize="${windowItem.id}"></div>`}
-          </div>
-        `
-      )
-      .join("");
+          `
+        )
+        .join("");
+    }
   }
+  preserveWindowDom = false;
 
   const clock = byId("clock");
   const variantBadge = document.querySelector(".variant-badge");
@@ -2162,15 +3229,15 @@ function renderDesktop() {
   }
 
   document.querySelectorAll("[data-track]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       const trackId = button.getAttribute("data-track");
       state.desktopStep = "select";
       openTrackWorkspace(trackId);
-    });
+    };
   });
 
   document.querySelectorAll("[data-open-folder-track]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       const trackId = button.getAttribute("data-open-folder-track");
       const target = findWindowById(`folder-${trackId}`);
       if (target) {
@@ -2178,115 +3245,127 @@ function renderDesktop() {
         return;
       }
       openTrackFolderWindow(trackId);
-    });
+    };
   });
 
   document.querySelectorAll("[data-start-track]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       const trackId = button.getAttribute("data-start-track");
       state.startMenuOpen = false;
       state.desktopStep = "select";
       renderDesktop();
       openTrackWorkspace(trackId);
-    });
+    };
   });
 
   document.querySelectorAll("[data-enter-library]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       state.desktopStep = "select";
       renderDesktop();
-    });
+    };
+  });
+
+  document.querySelectorAll("[data-open-first-track]").forEach((button) => {
+    button.onclick = () => {
+      state.desktopStep = "select";
+      renderDesktop();
+      openTrackWorkspace("t1");
+    };
   });
 
   document.querySelectorAll("[data-toggle-all-tracks]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       state.showAllTracks = !state.showAllTracks;
       renderDesktop();
-    });
+    };
   });
 
   document.querySelectorAll("[data-set-variant]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       const variantId = button.getAttribute("data-set-variant");
       setDesignVariant(variantId);
-    });
+    };
   });
 
   document.querySelectorAll("[data-open-app-folder]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       state.startMenuPath = "apps";
       renderDesktop();
-    });
+    };
   });
 
   document.querySelectorAll("[data-open-app-folder-desktop]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       openApplicationsFolderWindow();
-    });
+    };
   });
 
   document.querySelectorAll("[data-open-music-folder]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       openMusicFolderWindow();
-    });
+    };
   });
 
   document.querySelectorAll("[data-open-about-desktop]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       openDesktopAboutWindow();
-    });
+    };
   });
 
   document.querySelectorAll("[data-run-track-exe]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       const trackId = button.getAttribute("data-run-track-exe");
       openTrackWorkspace(trackId);
-    });
+    };
   });
 
   document.querySelectorAll("[data-back-root]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       state.startMenuPath = "root";
       renderDesktop();
-    });
+    };
   });
 
   document.querySelectorAll("[data-sample-detail-track]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.onclick = () => {
       const trackId = button.getAttribute("data-sample-detail-track");
       const sampleIndex = button.getAttribute("data-sample-detail-index");
       openSampleDetailWindow(trackId, sampleIndex);
-    });
+    };
   });
 
   document.querySelectorAll("[data-close]").forEach((button) => {
-    button.addEventListener("click", () => closeWindow(button.getAttribute("data-close")));
+    button.onclick = () => closeWindow(button.getAttribute("data-close"));
   });
 
   document.querySelectorAll("[data-task]").forEach((button) => {
-    button.addEventListener("click", () => toggleTaskWindow(button.getAttribute("data-task")));
+    button.onclick = () => toggleTaskWindow(button.getAttribute("data-task"));
   });
 
   document.querySelectorAll("[data-minimize]").forEach((button) => {
-    button.addEventListener("click", (event) => {
+    button.onclick = (event) => {
       event.stopPropagation();
       minimizeWindow(button.getAttribute("data-minimize"));
-    });
+    };
   });
 
   document.querySelectorAll("[data-maximize]").forEach((button) => {
-    button.addEventListener("click", (event) => {
+    button.onclick = (event) => {
       event.stopPropagation();
       toggleMaximizeWindow(button.getAttribute("data-maximize"));
-    });
+    };
   });
 
   document.querySelectorAll("[data-play]").forEach((button) => {
-    button.addEventListener("click", () => playTrack(button.getAttribute("data-play")));
+    button.onclick = () => {
+      playTrack(button.getAttribute("data-play")).catch((error) => {
+        console.error(error);
+      });
+    };
   });
 
   document.querySelectorAll("[data-stop]").forEach((button) => {
-    button.addEventListener("click", () => stopTrack(button.getAttribute("data-stop")));
+    button.onclick = () => stopTrack(button.getAttribute("data-stop"));
   });
 
   document.querySelectorAll("[data-reset]").forEach((button) => {
@@ -2294,14 +3373,16 @@ function renderDesktop() {
     const trackId = playerId.replace("player-", "");
     const track = trackMap.get(trackId);
     if (!track) return;
-    button.addEventListener("click", () => resetTrack(playerId, track.strudel_code));
+    button.onclick = () => resetTrack(playerId, track.strudel_code);
   });
 
   document.querySelectorAll("[data-identity-error]").forEach((button) => {
-    button.addEventListener("click", () => showSystemError());
+    button.onclick = () => showSystemError();
   });
 
   document.querySelectorAll("#windows .window[data-id]").forEach((windowEl) => {
+    if (windowEl.dataset.focusBound === "1") return;
+    windowEl.dataset.focusBound = "1";
     windowEl.addEventListener("mousedown", () => {
       const id = windowEl.getAttribute("data-id");
       const windowState = findWindowById(id);
@@ -2326,6 +3407,11 @@ function renderDesktop() {
     if (!track) return;
     mountRepl(windowItem.id, track.strudel_code);
     mountPlayerHydra(windowItem.id, track.id);
+  });
+
+  playbackRuntime.forEach((runtime, windowId) => {
+    if (!runtime?.currentScene || !runtime?.trackId) return;
+    applyPlaybackScene(windowId, runtime.trackId, runtime.currentScene);
   });
 
   if (!desktopHandlersAttached) {
@@ -2374,6 +3460,14 @@ function renderApp() {
     return;
   }
   renderDesktop();
+}
+
+if (typeof window !== "undefined") {
+  window.__breindoodSelfTest = runPlaybackUiSelfTest;
+  window.__breindoodPlaybackPlan = (trackId = "t1") => {
+    const track = trackMap.get(trackId);
+    return getPlaybackPlan(track);
+  };
 }
 
 renderApp();

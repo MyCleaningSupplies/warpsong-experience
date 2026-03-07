@@ -212,6 +212,13 @@ button {
   background: linear-gradient(180deg, rgba(6, 6, 8, 0.14), rgba(6, 6, 8, 0.52));
 }
 
+.desktop.desktop-reactive .desktop-overlay {
+  background:
+    radial-gradient(circle at 72% 24%, hsla(var(--desktop-react-hue, 220), 94%, 64%, calc(0.08 + var(--desktop-react-strength, 0.2) * 0.28)), transparent 52%),
+    radial-gradient(circle at 24% 74%, hsla(calc(var(--desktop-react-hue, 220) + 46), 86%, 56%, calc(0.04 + var(--desktop-react-strength, 0.2) * 0.2)), transparent 46%),
+    linear-gradient(180deg, rgba(6, 6, 8, 0.14), rgba(6, 6, 8, 0.52));
+}
+
 .places-dock {
   position: absolute;
   top: 14px;
@@ -949,8 +956,10 @@ button {
   background: #2f9139;
   color: #fff;
   border: 2px solid #215d26;
-  padding: 6px 12px;
+  min-width: 148px;
+  padding: 6px 10px;
   font-weight: 600;
+  text-align: left;
 }
 
 .taskbar-windows {
@@ -1014,6 +1023,12 @@ button {
 .source-panel {
   height: 100%;
   padding: 10px;
+}
+
+.player-app {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(220px, 1fr) auto;
+  gap: 8px;
 }
 
 .panel-topline {
@@ -1101,6 +1116,54 @@ button {
   box-shadow: var(--shadow-hard);
 }
 
+.window-player.window-reactive .player-header {
+  border-color: hsla(var(--react-hue, 220), 86%, 70%, calc(0.58 + var(--react-strength, 0.3) * 0.45));
+  background: linear-gradient(
+    180deg,
+    hsla(var(--react-hue, 220), 52%, 43%, calc(0.78 + var(--react-strength, 0.3) * 0.16)),
+    hsla(calc(var(--react-hue, 220) + 18), 48%, 28%, calc(0.84 + var(--react-strength, 0.3) * 0.12))
+  );
+  box-shadow: 0 0 0 1px hsla(var(--react-hue, 220), 75%, 65%, 0.28), var(--shadow-hard);
+}
+
+.window-player.window-reactive {
+  box-shadow:
+    0 0 0 1px hsla(var(--react-hue, 220), 88%, 68%, calc(0.28 + var(--react-strength, 0.3) * 0.24)),
+    0 0 22px hsla(var(--react-hue, 220), 88%, 62%, calc(0.12 + var(--react-strength, 0.3) * 0.28)),
+    var(--shadow-hard);
+}
+
+.window-source.window-reactive-source {
+  box-shadow:
+    0 0 0 1px hsla(var(--react-hue, 220), 85%, 62%, calc(0.24 + var(--react-strength, 0.3) * 0.24)),
+    0 0 18px hsla(var(--react-hue, 220), 80%, 58%, calc(0.1 + var(--react-strength, 0.3) * 0.24)),
+    var(--shadow-hard);
+}
+
+.window-player[data-react-viz="0"] .player-header {
+  background: linear-gradient(180deg, #2f466f, #1d2f4f);
+}
+
+.window-player[data-react-viz="1"] .player-header {
+  background: linear-gradient(180deg, #4d2a6a, #2d1f4f);
+}
+
+.window-player[data-react-viz="2"] .player-header {
+  background: linear-gradient(180deg, #6a2a34, #4f1f30);
+}
+
+.window-player[data-react-viz="01"] .player-header {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(59, 91, 145, 0.92) 0 10px,
+    rgba(121, 53, 148, 0.92) 10px 20px
+  );
+}
+
+.window-player[data-react-viz="01"] .player-title {
+  text-shadow: 0 0 8px rgba(255, 239, 164, 0.7);
+}
+
 .player-header-top {
   font-size: 11px;
   text-transform: uppercase;
@@ -1116,6 +1179,16 @@ button {
 .player-sub {
   margin-top: 3px;
   font-size: 11px;
+}
+
+.player-purpose {
+  margin-top: 7px;
+  border: 1px solid rgba(212, 227, 255, 0.55);
+  background: rgba(12, 21, 38, 0.6);
+  color: #e8f1ff;
+  font-size: 11px;
+  line-height: 1.35;
+  padding: 5px 7px;
 }
 
 .player-controls {
@@ -1138,13 +1211,32 @@ button {
   opacity: 0.5;
 }
 
+.player-live-strip {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: -2px;
+}
+
+.player-live-pill {
+  border: 1px solid #4b648f;
+  background: rgba(16, 29, 54, 0.75);
+  color: #d8e7ff;
+  font-size: 11px;
+  padding: 3px 8px;
+}
+
+.player-live-pill strong {
+  color: #fff5bc;
+  font-weight: 700;
+}
+
 .media-layout-v1 {
-  margin-top: 8px;
-  height: calc(100% - 140px);
-  min-height: 280px;
+  min-height: 220px;
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   gap: 8px;
+  min-width: 0;
 }
 
 .media-code-pane,
@@ -1153,6 +1245,13 @@ button {
   background: rgba(5, 10, 20, 0.72);
   padding: 6px;
   min-height: 0;
+}
+
+.media-code-pane,
+.v2-center-code,
+.v3-code {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .media-pane-title {
@@ -1165,13 +1264,14 @@ button {
 
 .media-code-pane .player-stage {
   margin-top: 0;
-  height: calc(100% - 18px);
+  height: 100%;
+  min-height: 0;
 }
 
 .media-sources-grid {
   display: grid;
   gap: 7px;
-  max-height: calc(100% - 18px);
+  max-height: calc(100% - 40px);
   overflow: auto;
 }
 
@@ -1181,6 +1281,14 @@ button {
   background: rgba(210, 224, 255, 0.2);
   color: #e8efff;
   padding: 7px;
+}
+
+.media-origin-card.is-playing-source,
+.source-detail-card.is-playing-source,
+.strip-source-item.is-playing-source {
+  border-color: #ffd05a;
+  box-shadow: 0 0 0 1px rgba(255, 208, 90, 0.4), inset 0 0 0 1px rgba(255, 208, 90, 0.22);
+  background: rgba(255, 214, 114, 0.18);
 }
 
 .media-origin-name {
@@ -1203,12 +1311,11 @@ button {
 }
 
 .media-layout-v2 {
-  margin-top: 8px;
-  height: calc(100% - 140px);
-  min-height: 280px;
+  min-height: 220px;
   display: grid;
   grid-template-columns: 0.75fr 1.15fr 0.8fr;
   gap: 8px;
+  min-width: 0;
 }
 
 .v2-left-tree,
@@ -1236,6 +1343,16 @@ button {
   text-transform: uppercase;
   color: #b7c5e9;
   padding: 0 4px;
+}
+
+.origin-help {
+  margin: 4px 0 7px;
+  border: 1px solid rgba(130, 157, 204, 0.55);
+  background: rgba(17, 29, 53, 0.58);
+  color: #dce8ff;
+  font-size: 10px;
+  line-height: 1.35;
+  padding: 5px 6px;
 }
 
 .v2-tree-row {
@@ -1269,16 +1386,16 @@ button {
 
 .v2-center-code .player-stage {
   margin-top: 0;
-  height: calc(100% - 18px);
+  height: 100%;
+  min-height: 0;
 }
 
 .media-layout-v3 {
-  margin-top: 8px;
-  height: calc(100% - 140px);
-  min-height: 280px;
+  min-height: 220px;
   display: grid;
   grid-template-rows: 0.42fr 0.58fr;
   gap: 8px;
+  min-width: 0;
 }
 
 .v3-visual-bar {
@@ -1316,7 +1433,8 @@ button {
 
 .v3-code .player-stage {
   margin-top: 0;
-  height: calc(100% - 18px);
+  height: 100%;
+  min-height: 0;
 }
 
 .v3-origins {
@@ -1417,7 +1535,7 @@ button {
 .player-stage {
   position: relative;
   margin-top: 8px;
-  height: calc(100% - 142px);
+  height: 100%;
   min-height: 220px;
   border: 1px solid #202631;
   background: rgba(0, 0, 0, 0.34);
@@ -1450,6 +1568,14 @@ button {
 .player-repl {
   position: relative;
   z-index: 2;
+  height: 100%;
+  min-height: 220px;
+  overflow: hidden;
+}
+
+.player-repl strudel-editor {
+  display: block;
+  width: 100%;
   height: 100%;
 }
 
