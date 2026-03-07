@@ -16,19 +16,6 @@ const tracks = [
 ///BREINDOOD
 ///TRACK 1 = BRINKSTRAAT
 
-await initHydra({feedStrudel:1})
-const { chapter, note } = createParams({ chapter: "none", note: "none" })
-
-
-src(s0)
-  .kaleid(H("<4 5 6>"))
-  .diff(osc(1,0.5,5))
-  .modulateScale(osc(2,-0.25,1))
-  .pixelate(() => 8 + a.fft[0] * 20, () => 8 + a.fft[0] * 20)
-  .brightness(() => -0.15 - a.fft[0] * 0.2)
-  .contrast(1.5)
-  .out()
-
 setGainCurve(x => Math.pow(x, 2))
 samples('github:switchangel/breaks')
 samples('github:switchangel/pad')
@@ -199,7 +186,7 @@ let misc_unchanged = s("loops").n(3).transpose(-14)
   .lpf(400)
   .mask("1 0!15".slow(16))
 
-let misc_unchanged_2 = s("pre-loop/8").n(3).transpose(-14)
+let misc_unchanged_2 = s("pre-loop/8").n(0).transpose(-14)
   .cut(1)
   .vib("4:.4")
   .gain(1)
@@ -241,8 +228,8 @@ all(x=>x.fft(4).scope({pos:0,smear:.95}))
 
 // --- ARRANGEMENT ---
 $: arrange(
-  [4, stack(misc_unchanged, drums_kick.gain(0.3))],
-  [4, stack(misc_unchanged_2, drums_kick.gain(0.3))],
+  [8, stack(misc_unchanged_2, drums_kick.gain(0.3))],
+  [8, stack(misc_unchanged_2, drums_kick.gain(0.3))],
   [8, stack(rifi_start.gain(0.3), drums_kick.gain(0.3), jungle_rustig.gain(0.3))],
   [8, stack(drums_groove, rifi_loop, jungle_rustig)],
   [8, stack(drums_groove, rifi_loop_alt, jungle_rustig)],
@@ -322,65 +309,307 @@ $: arrange(
   },
   {
     id: "t2",
-    folder: "02_Internet_Explorer",
-    title: "INTERNET EXPLORER",
-    location: "Browser-era internet",
-    theme: "Cultuurclash en hybride identiteit",
-    mood: "Chaotisch, digitaal, botsend",
+    folder: "02_Blankenberge",
+    title: "BLANKENBERGE",
+    location: "Blankenberge",
+    theme: "Nachtleven, spanning, ruwe herinnering",
+    mood: "Rauw, pulserend, chaotisch",
     duration_target: "04:10",
     status: "hero",
-    validation_hypothesis:
-      "Luisteraar herkent twee culturele lagen die bewust tegen elkaar schuren en begrijpt dat dit over hybride identiteit gaat.",
+    validation_hypothesis: "Luisteraar voelt de overgang van club-ruis naar introspectie via samplelagen en breakstructuren.",
     strudel_code: `
-setCps(100/60/4)
+///BREINDOOD
+///TRACK 2 - BLANKENBERGE
+
+await initHydra({ detectAudio: true })
+a.setSmooth(0.8) 
+
+osc(40, 0.1, 1)
+  .color(0.9, 0, 0.5) 
+  .mult(osc(10, 0.1).kaleid(6)) 
+  .mask(shape(4, 0.3, 0.1).scrollX(0.2)) 
+  .add(
+    noise(3, 0.2)
+      .color(0, 0.5, 0.8) 
+      .pixelate(() => 20 + a.fft[0] * 70, () => 20 + a.fft[0] * 60)
+  )
+  .modulateScrollY(noise(2), 0.1)
+  .scale(() => 1 + a.fft[0] * 0.4) 
+  .brightness(-0.1)
+  .contrast(1.3)
+  .out();
+
+setCps(90/60/4)
 samples('github:tidalcycles/uzu-drumkit')
+samples('github:switchangel/breaks')
+samples('github:MyCleaningSupplies/breindoodsamples')
 
-let click = s("cp:1").beat("2,6,10,14", 16).gain(0.35)
-let drone = s("pad").n(0).slow(4).lpf(900).room(0.8).gain(0.32)
-let breakLayer = s("drumsamples").begin(0.2).loopAt(2).gain(0.25)
+let kick = s("bd:1")
+  .beat("0,4,8,12", 16)
+  .bank("RolandTR909")
+  .duck(2)
+  .duckattack(0.2)
+  .rarely(x=>x.speed("1 | -1"))
+  .sometimesBy(.4, x=>x.delay(".5"))
+  .lpf(400)
+  .room(0.4)
+  .degradeBy(0.1)
+  .compress(.25, 1)
+  .postgain(0.4)
 
-$: stack(click, drone, breakLayer)
+let loop_base = s("drumsamples")
+  .begin(0.048)
+  .speed(90/93)
+  .cut(2)
+  .loopAt(4)
+  .attack(0.02)
+  .release(0.05)
+  .sometimes(x=>x.ply(2))
+  .phaser(0.5)
+  .orbit(2)
+  .postgain(0.8)
+
+let loop_base2 = s("drumsamples")
+  .begin(0.048)
+  .speed(90/93)
+  .cut(2)
+  .loopAt(1)
+  .attack(0.02)
+  .release(0.3)
+  .orbit(2)
+  .room(0.4)
+  .postgain(0.8)
+
+let loop_base_unchanged = s("drumsamples")
+  .begin(0.048)
+  .lpf(800)
+  .speed(90/93)
+  .attack(0.02)
+  .release(0.3)
+  .cut(1)
+  .fast(2)
+  .distort(1.5)
+  .every(4, x=>x.rev())
+  .rarely(x=>x.speed("1 | -1"))
+  .sometimesBy(.4, x=>x.delay(".5"))
+  .sometimes(x=>x.ply(2))
+  .room(0.4)
+  .compress(.25, .75)
+  ._scope()
+  .postgain(0.8)
+
+let loop_base_unchanged_alt = s("drumsamples")
+  .begin(0.048)
+  .lpf(800)
+  .speed(90/93)
+  .attack(0.02)
+  .release(0.3)
+  .cut(1)
+  .fast(4)
+  .distort(1.5)
+  .every(4, x=>x.rev())
+  .rarely(x=>x.speed("1 | -1"))
+  .sometimesBy(.4, x=>x.delay(".5"))
+  .sometimes(x=>x.ply(2))
+  .room(0.4)
+  .compress(.25, .75)
+  ._scope()
+  .postgain(0.8)
+
+let amen_stamp = s("live_drums/2")
+  .n(3)
+  .fit()
+  .scrub("0 0.0625 0.125 0.125")
+  .sometimesBy(.4, x=>x.delay(".5"))
+  .gain(0.1)
+  .room(0.4)           
+  .decay(0.15)
+
+let live_a = s("live_drums/2").n(1)
+  .scrub(irand(2).div(16).seg(8))
+  .sometimes(x=>x.ply(1))
+  .rarely(x=>x.speed("1 | -1"))
+  .sometimesBy(.4, x=>x.delay(".5"))
+  .degradeBy(0.1)
+  .rib(1, 4)
+  .lpf(800)
+  .decay(0.5)
+  .room(0.5)
+  .postgain(0.4)
+
+let live_b = s("breaks/2").n(3).fit()
+  .scrub(irand(5).div(16).seg(8))
+  .rib(5, 1)
+  .sustain(0.3)
+  .decay(0.5)
+  .room(0.5)
+  .gain(0.3)
+  .phaser(0.5)
+
+let live_c = s("breaks/2").n(3).fit()
+  .scrub(irand(5).div(16).seg(4))
+  .rib(10, 2)
+  .degradeBy(0.1)
+  .almostNever(ply("2 | 4"))
+  .sustain(0.3)
+  .decay(0.5)
+  .room(0.5)
+  .phaser(0.5)
+  .postgain(0.3)
+
+let club_ambience = s("ambience-sample").n(0)
+  .speed(1)
+  .delay(0.5)
+  .room(0.5)
+  .lpf(200)
+  .cut(1)
+  .mask("1 0!7".slow(8))
+  .postgain(0.5)
+
+let beach_ambience = s("ambience-sample").n(1)
+  .speed(1)
+  .delay(0.5)
+  .room(0.5)
+  .lpf(200)
+  .cut(1)
+  .mask("1 0!7".slow(8))
+  .postgain(0.5)
+
+let door = s("sfx").n(0)
+  .room(0.4)
+  .delay(0.3)
+  .sustain(0.4)
+  .cut(1)
+  .mask("1 0!7".slow(8))
+
+let stem = s("stems/4").n(13).fit().transpose(-14)
+  .scrub(irand(4).div(4).seg(4))
+  .rib("<11>", 2)
+  .slow(1)
+  .delay(0.12)         
+  .sustain(0.5)
+  .release(0.2)
+  .lpf(1200)       
+  .phaser(1)
+  .phaserdepth(.5)
+  .room(0.05)         
+  .orbit(2)
+  ._scope()
+  .postgain(0.85)
+
+let stem2 = s("stems/4").n(13).fit().transpose(-14)
+  .scrub(irand(3).div(8).seg(8))
+  .rib("<11>", 2)
+  .delay(0.12)         
+  .sustain(0.5)
+  .lpf(1200)       
+  .room(0.05)         
+  .orbit(2)
+  ._scope()
+  .postgain(0.85)
+
+$: arrange(
+  [4, loop_base2],
+  [4, stack(club_ambience.lpf(200), loop_base2)],
+  [4, loop_base_unchanged],
+  [4, stack(loop_base_unchanged, loop_base)._scope()],
+  [3, stack(stem, kick, loop_base_unchanged)],
+  [1, stack(stem2, loop_base_unchanged_alt)],
+  [3, stack(beach_ambience, stem, kick, loop_base_unchanged)],
+  [1, loop_base_unchanged_alt],
+  [8, stack(stem, kick, loop_base_unchanged)],
+  [1, loop_base_unchanged_alt],
+  [8, stack(beach_ambience, stem2, kick, loop_base, live_a, live_b, live_c)],
+  [4, stack(live_b, live_c)],
+  [3, stack(beach_ambience, stem, amen_stamp, loop_base_unchanged)],
+  [1, loop_base_unchanged],
+  [8, stack(stem, kick.gain(0.12), live_b.gain(0.25), live_c.gain(0.25))],
+  [4, stack(stem.gain(0.7), amen_stamp.gain(0.08))],
+  [8, stack(stem, kick.gain(0.12), live_a.gain(0.25), live_c.gain(0.25))],
+  [4, stack(stem.gain(0.7), amen_stamp.gain(0.08))],
+  [4, stack(kick.gain(0), loop_base.gain(0), stem.gain(0))]
+).spiral({ steady: .96, activeColor: 1, fold: 1, labels: 1, vertical: 1, cycles: 2 })
 `.trim(),
     liner_notes: {
       personal_context:
-        "Mijn online vorming gebeurde tussen open-source forums, games, en familiecultuur thuis. Deze track laat die simultane invloeden botsen.",
+        "Blankenberge voelt als dubbel perspectief: uitgaan, afstand, en terugvallen in herinnering.",
       what_this_track_should_make_you_feel:
-        "Geen nette balans, maar een frictie die toch een eigen ritme vindt.",
+        "Een nacht die voortdurend kantelt tussen euforie en onrust.",
       design_intent_audio:
-        "Contrasterende lagen lopen tegelijk: klikgeluiden, pads, en gebroken ritmes zonder volledige oplossing.",
+        "Breaks, stems en ambience schuiven tegen elkaar terwijl kick en loop de ruggengraat blijven.",
       design_intent_visual:
-        "Desktop voelt als browser-ruis: vensters die context tonen naast code, zonder de clash te verbergen."
+        "Hydra-beeld reageert op audio met korrel, maskers en schaalverschuiving."
     },
     sources: [
       {
-        sample_name: "Chaabi Vocal Fragment",
-        origin_artist: "Regional Wedding Tape Archive",
-        origin_title: "Family Collection Extract",
-        origin_label: "Private Family Archive",
-        origin_year: "1990s",
-        license_or_usage_note: "Familie-archief, intern gebruik in afstudeerproject",
-        why_it_matters_personally: "Verwijst naar de kant van thuis en familie-erfenis.",
-        where_used_in_track: "Textural vocal layer (processed)"
+        sample_name: "tr909",
+        origin_artist: "Roland TR-909",
+        origin_title: "BD/SD kit",
+        origin_label: "uzu-drumkit",
+        origin_year: "1983",
+        license_or_usage_note: "Library use",
+        why_it_matters_personally: "Mechanische puls tegenover onvoorspelbare lagen.",
+        where_used_in_track: "kick/snare backbone"
       },
       {
-        sample_name: "Net Cafe Error Beep",
-        origin_artist: "System UI SFX",
-        origin_title: "Browser Error Tone",
-        origin_label: "Public-era internet sound",
-        origin_year: "2000s",
-        license_or_usage_note: "Heavily transformed one-shot",
-        why_it_matters_personally: "Symboliseert mijn jeugd op het internet.",
-        where_used_in_track: "Percussive transient accents"
+        sample_name: "drumsamples",
+        origin_artist: "BREINDOOD sample bank",
+        origin_title: "drumsamples",
+        origin_label: "local",
+        origin_year: "2024",
+        license_or_usage_note: "Eigen samplebank",
+        why_it_matters_personally: "Basale groove-laag van de track.",
+        where_used_in_track: "loop_base / loop_base2 / loop_base_unchanged"
       },
       {
-        sample_name: "Break Loop 93 BPM",
+        sample_name: "breaks",
         origin_artist: "Switchangel Breaks",
-        origin_title: "Drumsamples segment",
-        origin_label: "Sample Pack",
+        origin_title: "breaks/2",
+        origin_label: "github:switchangel/breaks",
         origin_year: "Unknown",
-        license_or_usage_note: "Pack usage according to source terms",
-        why_it_matters_personally: "Verbindt mijn huidige producer-identiteit met vroegere luistergeschiedenis.",
-        where_used_in_track: "Main loop backbone"
+        license_or_usage_note: "Pack usage",
+        why_it_matters_personally: "Ruwe energie en contrast.",
+        where_used_in_track: "live_b / live_c"
+      },
+      {
+        sample_name: "live_drums",
+        origin_artist: "BREINDOOD sample bank",
+        origin_title: "live_drums/2",
+        origin_label: "local",
+        origin_year: "2024",
+        license_or_usage_note: "Eigen samplebank",
+        why_it_matters_personally: "Live slices houden het menselijk en instabiel.",
+        where_used_in_track: "amen_stamp / live_a"
+      },
+      {
+        sample_name: "ambience-sample",
+        origin_artist: "Field recordings",
+        origin_title: "club+beach ambience",
+        origin_label: "local",
+        origin_year: "2024",
+        license_or_usage_note: "Eigen opnames",
+        why_it_matters_personally: "Plaatsgevoel en overgang tussen scènes.",
+        where_used_in_track: "club_ambience / beach_ambience"
+      },
+      {
+        sample_name: "sfx",
+        origin_artist: "Field recordings",
+        origin_title: "door",
+        origin_label: "local",
+        origin_year: "2024",
+        license_or_usage_note: "Eigen opnames",
+        why_it_matters_personally: "Marker van grens en toegang.",
+        where_used_in_track: "door"
+      },
+      {
+        sample_name: "stems",
+        origin_artist: "BREINDOOD stems",
+        origin_title: "stems/4",
+        origin_label: "local",
+        origin_year: "2024",
+        license_or_usage_note: "Eigen stems",
+        why_it_matters_personally: "Hoofdmelodische identiteit van de track.",
+        where_used_in_track: "stem / stem2"
       }
     ]
   },
@@ -613,7 +842,7 @@ const VARIANTS = {
     workspaceLayoutRatios: { liner: 0.25, player: 0.37, source: 0.38 }
   }
 };
-const DEMO_HYDRA_TRACK_ID = "t2";
+const DEMO_HYDRA_TRACK_ID = "";
 
 const state = {
   view: "boot",
@@ -630,9 +859,12 @@ const state = {
 };
 
 const replRegistry = new Map();
+const replUpdateRegistry = new Map();
 const playerState = new Map();
 const playerHydraRegistry = new Map();
 const playbackRuntime = new Map();
+const stopInProgress = new Set();
+const playbackPrimed = new Set();
 
 const app = document.querySelector("#app");
 
@@ -650,10 +882,53 @@ let clockTimer = null;
 let desktopHandlersAttached = false;
 let windowManagerHandlersAttached = false;
 let preserveWindowDom = false;
+let strudelErrorGuardAttached = false;
+let strudelErrorBurstCount = 0;
+let strudelErrorBurstStart = 0;
 
 const byId = (id) => document.getElementById(id);
 const nextZ = () => (state.z += 1);
 const nowTime = () => new Date().toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+let consoleNoiseFilterInstalled = false;
+let hydraInitGuardInstalled = false;
+
+function installConsoleNoiseFilter() {
+  if (consoleNoiseFilterInstalled) return;
+  consoleNoiseFilterInstalled = true;
+  const originalLog = console.log.bind(console);
+  console.log = (...args) => {
+    const message = String(args[0] || "").replace(/^%c/, "");
+    if (message.includes("[tonal] transpose: not a note")) return;
+    if (message.includes("[superdough] error: duck target orbit 2 does not exist")) return;
+    originalLog(...args);
+  };
+}
+
+function installHydraAudioCompatGuard() {
+  if (hydraInitGuardInstalled) return;
+  if (typeof globalThis.initHydra !== "function") return;
+  const original = globalThis.initHydra;
+  if (original?.__warpsongHydraGuarded) {
+    hydraInitGuardInstalled = true;
+    return;
+  }
+
+  const wrapped = async (options = {}) => {
+    try {
+      return await original(options);
+    } catch (error) {
+      const message = String(error?.message || error || "");
+      const detectAudio = !!options?.detectAudio;
+      if (detectAudio && /object can not be found here|domexception/i.test(message)) {
+        return original({ ...options, detectAudio: false });
+      }
+      throw error;
+    }
+  };
+  wrapped.__warpsongHydraGuarded = true;
+  globalThis.initHydra = wrapped;
+  hydraInitGuardInstalled = true;
+}
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -753,6 +1028,50 @@ function mapTokenToSourceIndexes(token, sources) {
     }
   });
   return [...hit];
+}
+
+function collectLiveSourceTokens(value, output) {
+  if (value == null) return;
+  if (Array.isArray(value)) {
+    value.forEach((entry) => collectLiveSourceTokens(entry, output));
+    return;
+  }
+  if (typeof value === "string") {
+    value
+      .split(/[,\s]+/)
+      .map((token) => token.trim())
+      .filter(Boolean)
+      .forEach((token) => output.add(token));
+    return;
+  }
+  if (typeof value === "number") {
+    output.add(String(value));
+    return;
+  }
+  if (typeof value === "object") {
+    if ("value" in value) collectLiveSourceTokens(value.value, output);
+    if ("name" in value) collectLiveSourceTokens(value.name, output);
+  }
+}
+
+function inferLiveSourceIndexesFromHaps(haps, track) {
+  const sourceList = Array.isArray(track?.sources) ? track.sources : [];
+  if (!sourceList.length || !Array.isArray(haps) || !haps.length) return [];
+
+  const tokens = new Set();
+  haps.forEach((hap) => {
+    const value = hap?.value;
+    if (!value || typeof value !== "object") return;
+    collectLiveSourceTokens(value.s, tokens);
+    collectLiveSourceTokens(value.sound, tokens);
+    collectLiveSourceTokens(value.bank, tokens);
+  });
+
+  const indexes = new Set();
+  tokens.forEach((token) => {
+    mapTokenToSourceIndexes(token, sourceList).forEach((idx) => indexes.add(idx));
+  });
+  return [...indexes];
 }
 
 function extractIdentifiers(expr) {
@@ -1062,9 +1381,29 @@ function setPlaybackSourcesLabel(windowId, sourceIndexes = [], trackId = null) {
   if (field) field.textContent = names || "—";
 }
 
+function setPlaybackTimelineLabel(windowId, timeline = null) {
+  const root = document.querySelector(`.window[data-id="${windowId}"]`);
+  if (!root) return;
+  const nowField = root.querySelector(`[data-play-now-large="${windowId}"]`);
+  const beatField = root.querySelector(`[data-play-beat="${windowId}"]`);
+  if (!timeline) {
+    if (nowField) nowField.textContent = "—";
+    if (beatField) beatField.textContent = "—";
+    return;
+  }
+
+  const section = timeline.sectionIndex + 1;
+  const total = timeline.sectionTotal;
+  const cycle = timeline.cycle;
+  const beat = timeline.beat;
+  if (nowField) nowField.textContent = `sec ${section}/${total} · cycle ${cycle}`;
+  if (beatField) beatField.textContent = `${beat.toFixed(2)}`;
+}
+
 function applyPlaybackScene(windowId, trackId, scene) {
   setPlaybackSectionLabel(windowId, scene?.label || "Idle");
   setPlaybackSourcesLabel(windowId, scene?.sourceIndexes || [], trackId);
+  setPlaybackTimelineLabel(windowId, scene?.timeline || null);
   highlightActiveSources(windowId, scene?.sourceIndexes || [], trackId);
 
   const playerWindow = document.querySelector(`.window[data-id="${windowId}"]`);
@@ -1117,18 +1456,24 @@ function applyPlaybackScene(windowId, trackId, scene) {
   }
 }
 
-function startPlaybackRuntime(windowId, track) {
+function startPlaybackRuntime(windowId, track, editor = null) {
   clearPlaybackRuntime(windowId);
   const plan = getPlaybackPlan(track);
   if (!plan) return;
 
+  const scheduler = editor?.repl?.scheduler;
+  const schedulerNow = typeof scheduler?.now === "function" ? scheduler.now.bind(scheduler) : null;
+  const startedAt = schedulerNow ? schedulerNow() : performance.now() / 1000;
+
   const runtime = {
-    startedAt: performance.now(),
+    startedAt,
     timer: 0,
     sectionIndex: -1,
     phaseKey: "",
     trackId: track.id,
-    currentScene: null
+    currentScene: null,
+    schedulerNow,
+    schedulerUsesCycles: !!schedulerNow
   };
 
   const sectionBoundaries = [];
@@ -1139,8 +1484,9 @@ function startPlaybackRuntime(windowId, track) {
   });
 
   runtime.timer = window.setInterval(() => {
-    const elapsedSec = (performance.now() - runtime.startedAt) / 1000;
-    const currentCycle = elapsedSec * plan.cps;
+    const now = runtime.schedulerNow ? runtime.schedulerNow() : performance.now() / 1000;
+    const elapsed = Math.max(0, now - runtime.startedAt);
+    const currentCycle = runtime.schedulerUsesCycles ? elapsed : elapsed * plan.cps;
     let sectionIndex = sectionBoundaries.findIndex((edge) => currentCycle < edge);
     if (sectionIndex === -1) {
       stopTrack(windowId);
@@ -1153,22 +1499,41 @@ function startPlaybackRuntime(windowId, track) {
     const sectionProgress = (currentCycle - sectionStart) / Math.max(activeSection.cycles, 1);
     const sourceCount = Math.max((track.sources || []).length, 1);
     const sectionSources = activeSection.sourceIndexes?.length ? activeSection.sourceIndexes : [sectionIndex % sourceCount];
-    const primary = sectionSources[0];
-    const comboSources = sectionSources.length > 1 ? sectionSources : [primary, (primary + 1) % sourceCount];
-    const comboOn = sectionProgress > 0.5;
-    const activeSources = comboOn ? comboSources : [primary];
-    const phase = comboOn ? "combo" : "single";
-    const phaseKey = `${sectionIndex}:${phase}:${activeSources.join("-")}`;
+    let activeSources = [];
+    const pattern = editor?.repl?.state?.pattern;
+    if (pattern && typeof pattern.queryArc === "function") {
+      const arcStart = Math.max(0, currentCycle - 0.125);
+      const arcEnd = currentCycle + 0.125;
+      const haps = pattern.queryArc(arcStart, arcEnd, { _cps: plan.cps }) || [];
+      activeSources = inferLiveSourceIndexesFromHaps(haps, track);
+    }
+    if (!activeSources.length) activeSources = sectionSources;
+    const primary = activeSources[0] ?? sectionSources[0] ?? (sectionIndex % sourceCount);
+    const cycle = Math.floor(currentCycle) + 1;
+    const beat = ((currentCycle - Math.floor(currentCycle)) * 4) + 1;
+    setPlaybackTimelineLabel(windowId, {
+      sectionIndex,
+      sectionTotal: plan.sections.length,
+      cycle,
+      beat
+    });
+    const phaseKey = `${sectionIndex}:${activeSources.join("-")}:${Math.floor(sectionProgress * 8)}`;
 
     if (phaseKey !== runtime.phaseKey || sectionIndex !== runtime.sectionIndex) {
       runtime.sectionIndex = sectionIndex;
       runtime.phaseKey = phaseKey;
       const scene = {
-        label: `${activeSection.label}${activeSection.vizSpec ? ` [viz:${activeSection.vizSpec}]` : ""} · ${comboOn ? "mix" : "single"}`,
+        label: `${activeSection.label}${activeSection.vizSpec ? ` [viz:${activeSection.vizSpec}]` : ""}`,
         sourceIndexes: activeSources,
-        energy: Math.min(0.92, activeSection.energy + (comboOn ? 0.2 : 0.04)),
-        hue: 200 + ((primary * 47 + (comboOn ? 90 : 0)) % 160),
-        vizSpec: activeSection.vizSpec || ""
+        energy: Math.min(0.92, activeSection.energy + Math.min(0.24, activeSources.length * 0.07)),
+        hue: 200 + ((primary * 47) % 160),
+        vizSpec: activeSection.vizSpec || "",
+        timeline: {
+          sectionIndex,
+          sectionTotal: plan.sections.length,
+          cycle,
+          beat
+        }
       };
       runtime.currentScene = scene;
       applyPlaybackScene(windowId, track.id, scene);
@@ -1211,6 +1576,34 @@ function getWorkspace(trackId) {
   return state.workspaceRegistry[trackId];
 }
 
+function renderWindowMarkup(windowItem) {
+  const track = windowItem.trackId ? trackMap.get(windowItem.trackId) : null;
+  const hasEmbeddedVisuals =
+    windowItem.kind === "player" && (trackUsesEmbeddedHydra(track) || trackUsesStrudelCanvasVisuals(track)) ? "1" : "0";
+  return `
+    <div class="window ${windowItem.className} ${windowItem.maximized ? "window-maximized" : ""}" data-id="${windowItem.id}" style="left:${
+      windowItem.x
+    }px; top:${windowItem.y}px; width:${windowItem.w}px; height:${windowItem.h}px; z-index:${windowItem.z};" data-embedded-visuals="${hasEmbeddedVisuals}">
+      <div class="title-bar">
+        <div class="title-bar-text">${windowItem.title}</div>
+        <div class="title-bar-controls">
+          <button aria-label="Minimize" data-minimize="${windowItem.id}" class="window-control"></button>
+          <button aria-label="${windowItem.maximized ? "Restore" : "Maximize"}" data-maximize="${windowItem.id}" class="window-control"></button>
+          <button aria-label="Close" data-close="${windowItem.id}" class="window-control"></button>
+        </div>
+      </div>
+      <div class="window-body">${windowItem.body}</div>
+      ${windowItem.maximized ? "" : `<div class="window-resizer" data-resize="${windowItem.id}"></div>`}
+    </div>
+  `;
+}
+
+function createWindowElement(windowItem) {
+  const host = document.createElement("div");
+  host.innerHTML = renderWindowMarkup(windowItem).trim();
+  return host.firstElementChild;
+}
+
 function findWindowById(id) {
   return state.windows.find((windowItem) => windowItem.id === id);
 }
@@ -1218,7 +1611,6 @@ function findWindowById(id) {
 function syncWindowLayerFromState(windowsLayer) {
   if (!windowsLayer) return false;
   const stateIds = new Set(state.windows.map((windowItem) => windowItem.id));
-  let valid = true;
 
   state.windows.forEach((windowItem) => {
     const el = windowsLayer.querySelector(`.window[data-id="${windowItem.id}"]`);
@@ -1227,7 +1619,8 @@ function syncWindowLayerFromState(windowsLayer) {
       return;
     }
     if (!el) {
-      valid = false;
+      const node = createWindowElement(windowItem);
+      if (node) windowsLayer.appendChild(node);
       return;
     }
 
@@ -1238,6 +1631,10 @@ function syncWindowLayerFromState(windowsLayer) {
     el.style.height = `${windowItem.h}px`;
     el.style.zIndex = String(windowItem.z);
     el.className = `window ${windowItem.className} ${windowItem.maximized ? "window-maximized" : ""}`;
+    const track = windowItem.trackId ? trackMap.get(windowItem.trackId) : null;
+    const hasEmbeddedVisuals =
+      windowItem.kind === "player" && (trackUsesEmbeddedHydra(track) || trackUsesStrudelCanvasVisuals(track)) ? "1" : "0";
+    el.dataset.embeddedVisuals = hasEmbeddedVisuals;
 
     const title = el.querySelector(".title-bar-text");
     if (title && title.textContent !== windowItem.title) title.textContent = windowItem.title;
@@ -1254,10 +1651,10 @@ function syncWindowLayerFromState(windowsLayer) {
   windowsLayer.querySelectorAll(".window[data-id]").forEach((el) => {
     const id = el.getAttribute("data-id");
     if (!id) return;
-    if (!stateIds.has(id)) valid = false;
+    if (!stateIds.has(id)) el.remove();
   });
 
-  return valid;
+  return true;
 }
 
 function persistWorkspaceWindow(windowState) {
@@ -1649,6 +2046,7 @@ function createWindow({ id, title, body, x, y, w, h, className, type, trackId, k
   persistWorkspaceWindow(windowState);
   state.startMenuOpen = false;
   state.activeId = id;
+  preserveWindowDom = true;
   renderDesktop();
   return windowState;
 }
@@ -1658,6 +2056,11 @@ function closeWindow(id) {
     stopTrack(id);
     destroyPlayerHydra(id);
     playerState.delete(id);
+    const binding = replUpdateRegistry.get(id);
+    if (binding?.repl && binding?.handler) {
+      binding.repl.removeEventListener("update", binding.handler);
+    }
+    replUpdateRegistry.delete(id);
     replRegistry.delete(id);
   }
 
@@ -1669,6 +2072,7 @@ function closeWindow(id) {
       .filter((windowItem) => !windowItem.minimized)
       .sort((a, b) => b.z - a.z)[0];
     state.activeId = nextActive ? nextActive.id : null;
+    preserveWindowDom = true;
     renderDesktop();
   }
 }
@@ -2290,6 +2694,7 @@ function buildPlayerBody(track) {
       <div class="player-live-strip">
         <span class="player-live-pill">Section: <strong data-play-section-large="player-${track.id}">Idle</strong></span>
         <span class="player-live-pill">Sources: <strong data-play-sources-large="player-${track.id}">—</strong></span>
+        <span class="player-live-pill">Now: <strong data-play-now-large="player-${track.id}">—</strong></span>
       </div>
       ${
         showXpMediaLayout
@@ -2462,6 +2867,7 @@ function buildPlayerBody(track) {
         <p class="status-bar-field">${track.duration_target}</p>
         <p class="status-bar-field">${VARIANTS[state.designVariant].short}</p>
         <p class="status-bar-field">Section: <span data-play-section="player-${track.id}">Idle</span></p>
+        <p class="status-bar-field">Beat: <span data-play-beat="player-${track.id}">—</span></p>
       </div>
       ${disabled ? `<div class="player-placeholder-note">Track is nog in development. Dit venster toont de beoogde applicatie-structuur.</div>` : ""}
     </div>
@@ -2616,7 +3022,7 @@ async function runPlaybackUiSelfTest(trackId = "t1") {
   return result;
 }
 
-function mountRepl(windowId, code) {
+function mountRepl(windowId, code, trackId = null) {
   const container = document.querySelector(`[data-repl="${windowId}"]`);
   if (!container) return;
 
@@ -2635,35 +3041,205 @@ function mountRepl(windowId, code) {
     container.appendChild(repl);
     if (!playerState.get(windowId)?.playing) resetReplViewport(repl);
   }
+  ensureReplHostLayout(repl);
+  bindReplUpdateEvents(windowId, trackId, repl);
 
   const nextCode = String(code || "");
   const isPlaying = !!playerState.get(windowId)?.playing;
   const currentCode = repl.dataset.currentCode || "";
+  const syncQueued = repl.dataset.codeSyncQueued === "1";
+
+  const syncCode = (value) => {
+    repl.setAttribute("code", value);
+    if (repl.editor && typeof repl.editor.setCode === "function") {
+      repl.editor.setCode(value);
+      repl.dataset.codeSyncQueued = "0";
+      return true;
+    }
+    return false;
+  };
 
   // Important: avoid resetting code while playing; it reinitializes the editor/iframe.
-  if (currentCode !== nextCode && !isPlaying) {
-    repl.setAttribute("code", nextCode);
+  const shouldSyncCode = currentCode !== nextCode && (!isPlaying || !currentCode);
+  if (shouldSyncCode) {
+    const synced = syncCode(nextCode);
     repl.dataset.currentCode = nextCode;
+    if (!synced && !syncQueued) {
+      repl.dataset.codeSyncQueued = "1";
+      window.setTimeout(() => {
+        const activeRepl = replRegistry.get(windowId);
+        if (!activeRepl || activeRepl !== repl) return;
+        if ((activeRepl.dataset.currentCode || "") !== nextCode) return;
+        syncCode(nextCode);
+      }, 120);
+    }
   }
 
+  ensureReplHostLayout(repl);
   forceReplIframeFullSize(repl);
+}
+
+function ensureReplHostLayout(repl) {
+  if (!repl || !repl.parentElement) return;
+  const host = repl.nextElementSibling;
+  if (!(host instanceof HTMLElement) || host.parentElement !== repl.parentElement) {
+    if (repl.dataset.hostLayoutQueued === "1") return;
+    repl.dataset.hostLayoutQueued = "1";
+    let tries = 0;
+    const timer = window.setInterval(() => {
+      tries += 1;
+      if (!repl.isConnected) {
+        window.clearInterval(timer);
+        repl.dataset.hostLayoutQueued = "0";
+        return;
+      }
+      const next = repl.nextElementSibling;
+      if (next instanceof HTMLElement && next.parentElement === repl.parentElement) {
+        next.classList.add("player-repl-host");
+        next.style.position = "absolute";
+        next.style.inset = "0";
+        next.style.width = "100%";
+        next.style.height = "100%";
+        next.style.zIndex = "2";
+        window.clearInterval(timer);
+        repl.dataset.hostLayoutQueued = "0";
+        return;
+      }
+      if (tries > 30) {
+        window.clearInterval(timer);
+        repl.dataset.hostLayoutQueued = "0";
+      }
+    }, 100);
+    return;
+  }
+  host.classList.add("player-repl-host");
+  host.style.position = "absolute";
+  host.style.inset = "0";
+  host.style.width = "100%";
+  host.style.height = "100%";
+  host.style.zIndex = "2";
 }
 
 function getCompatRuntimeCode(track, compatibilityMode = false) {
   if (!track) return "";
-  const source = String(track.strudel_code || "");
-  if (!compatibilityMode) return source;
+  return String(track.strudel_code || "");
+}
 
-  // Keep authored code intact in data/UI; only fallback for embedded runtime compatibility.
-  let code = source;
-  if (track.id === "t1") {
-    const gainStart = code.indexOf("setGainCurve(");
-    if (gainStart > 0) code = code.slice(gainStart);
-    code = code
-      .replace(/^all\(x=>x\.fft\(4\)\.scope\(\{[\s\S]*?\}\)\)\s*$/gm, "")
-      .replace(/\.transpose\(\s*-?\d+(?:\.\d+)?\s*\)/g, "");
+function trackUsesEmbeddedHydra(track) {
+  return /\binitHydra\s*\(/.test(String(track?.strudel_code || ""));
+}
+
+function trackUsesStrudelCanvasVisuals(track) {
+  const code = String(track?.strudel_code || "");
+  return /\.(punchcard|spiral|scope|_scope)\s*\(/.test(code);
+}
+
+function dockStrudelVisualCanvases(windowId, track) {
+  const hasHydraVisuals = trackUsesEmbeddedHydra(track);
+  const hasStrudelVisuals = trackUsesStrudelCanvasVisuals(track);
+  if (!hasHydraVisuals && !hasStrudelVisuals) return;
+  const replContainer = document.querySelector(`[data-repl="${windowId}"]`);
+  if (!replContainer) return;
+  const stage = replContainer.closest(".player-stage") || replContainer;
+  if (!(stage instanceof HTMLElement)) return;
+
+  const dock = (canvasId, zIndex) => {
+    const canvas = document.getElementById(canvasId);
+    if (!(canvas instanceof HTMLCanvasElement)) return;
+    if (canvas.parentElement !== stage) stage.prepend(canvas);
+    canvas.dataset.strudelDockedTo = windowId;
+    canvas.style.position = "absolute";
+    canvas.style.inset = "0";
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.pointerEvents = "none";
+    canvas.style.zIndex = String(zIndex);
+  };
+
+  if (hasHydraVisuals) dock("hydra-canvas", 0);
+  if (hasStrudelVisuals || hasHydraVisuals) dock("test-canvas", 1);
+}
+
+function ensureStrudelErrorGuard() {
+  if (strudelErrorGuardAttached) return;
+  strudelErrorGuardAttached = true;
+
+  document.addEventListener("strudel.log", (event) => {
+    const detail = event?.detail || {};
+    if (detail.type !== "error") return;
+    const message = String(detail.message || "");
+    if (!message.includes("[eval] error")) return;
+
+    const now = performance.now();
+    if (!strudelErrorBurstStart || now - strudelErrorBurstStart > 2500) {
+      strudelErrorBurstStart = now;
+      strudelErrorBurstCount = 0;
+    }
+    strudelErrorBurstCount += 1;
+    if (strudelErrorBurstCount < 8) return;
+
+    let stoppedAny = false;
+    playerState.forEach((entry, id) => {
+      if (!entry?.playing) return;
+      stopTrack(id);
+      stoppedAny = true;
+    });
+
+    if (stoppedAny) {
+      console.warn("Emergency stop: repeated Strudel runtime errors detected.");
+    }
+
+    strudelErrorBurstStart = now;
+    strudelErrorBurstCount = 0;
+  });
+}
+
+function bindReplUpdateEvents(windowId, trackId, repl) {
+  if (!repl) return;
+  const existing = replUpdateRegistry.get(windowId);
+  if (existing?.repl === repl) return;
+  if (existing?.repl && existing?.handler) {
+    existing.repl.removeEventListener("update", existing.handler);
   }
-  return code;
+
+  const handler = (event) => {
+    const state = event?.detail || {};
+    const isPlaying = !!playerState.get(windowId)?.playing;
+    const stopping = stopInProgress.has(windowId);
+    if (state?.pending) return;
+
+    if (state?.evalError || state?.schedulerError) {
+      playerState.set(windowId, { playing: false });
+      setPlayerHydraPlayback(windowId, false);
+      clearPlaybackRuntime(windowId);
+      applyPlaybackScene(windowId, trackId || null, null);
+      return;
+    }
+
+    if (stopping) {
+      playerState.set(windowId, { playing: false });
+      return;
+    }
+
+    const started = !!state?.started;
+    if (started && !isPlaying) {
+      playerState.set(windowId, { playing: true });
+      setPlayerHydraPlayback(windowId, true);
+      const track = trackId ? trackMap.get(trackId) : null;
+      if (track) startPlaybackRuntime(windowId, track, repl.editor);
+      return;
+    }
+
+    if (!started && isPlaying) {
+      playerState.set(windowId, { playing: false });
+      setPlayerHydraPlayback(windowId, false);
+      clearPlaybackRuntime(windowId);
+      applyPlaybackScene(windowId, trackId || null, null);
+    }
+  };
+
+  repl.addEventListener("update", handler);
+  replUpdateRegistry.set(windowId, { repl, handler });
 }
 
 function forceReplIframeFullSize(repl) {
@@ -2760,62 +3336,97 @@ function showSystemError() {
 }
 
 async function playTrack(windowId) {
+  installConsoleNoiseFilter();
+  ensureStrudelErrorGuard();
+  stopInProgress.delete(windowId);
   const repl = replRegistry.get(windowId);
   const windowState = findWindowById(windowId);
   const track = windowState?.trackId ? trackMap.get(windowState.trackId) : null;
   const editor = repl?.editor;
   if (!editor || typeof editor.evaluate !== "function") return;
+  if (trackUsesEmbeddedHydra(track)) installHydraAudioCompatGuard();
 
   const runEvaluate = async (code) => {
-    if (typeof editor.setCode === "function") {
-      editor.setCode(code);
-      if (repl) repl.dataset.currentCode = code;
+    if (typeof editor.setCode === "function") editor.setCode(code);
+    if (typeof editor.evaluate === "function") {
+      await Promise.resolve(editor.evaluate());
+    } else if (typeof editor?.repl?.evaluate === "function") {
+      await Promise.resolve(editor.repl.evaluate(code));
     }
-    await Promise.resolve(editor.evaluate());
+    const evalState = editor?.repl?.state;
+    const evalError = evalState?.evalError || evalState?.schedulerError || null;
+    return {
+      ok: !evalError,
+      error: evalError
+    };
   };
 
-  const preferCompat = track?.id === "t1";
-
   try {
-    await runEvaluate(getCompatRuntimeCode(track, preferCompat));
+    const authoredCode = getCompatRuntimeCode(track, false);
+    if (repl) repl.dataset.currentCode = authoredCode;
+
+    const result = await runEvaluate(authoredCode);
+    if (!result.ok) throw result.error || new Error("Strudel evaluate failed");
   } catch (error) {
-    const message = String(error?.message || error || "");
-    const shouldRetryCompat =
-      !preferCompat &&
-      track?.id === "t1" &&
-      (message.includes("undefined") || message.includes("pattern") || message.includes("transpose"));
-
-    if (!shouldRetryCompat) {
-      playerState.set(windowId, { playing: false });
-      setPlayerHydraPlayback(windowId, false);
-      throw error;
-    }
-
-    console.warn("Retrying playback in compatibility mode for embedded Strudel runtime.");
-    await runEvaluate(getCompatRuntimeCode(track, true));
+    playerState.set(windowId, { playing: false });
+    setPlayerHydraPlayback(windowId, false);
+    clearPlaybackRuntime(windowId);
+    const trackId = windowState?.trackId || null;
+    applyPlaybackScene(windowId, trackId, null);
+    throw error;
   }
 
   playerState.set(windowId, { playing: true });
   setPlayerHydraPlayback(windowId, true);
-  if (track) startPlaybackRuntime(windowId, track);
+  if (track && !playbackRuntime.get(windowId)) startPlaybackRuntime(windowId, track, editor);
+
+  const hasEmbeddedHydra = trackUsesEmbeddedHydra(track);
+  const hasCanvasVisuals = hasEmbeddedHydra || trackUsesStrudelCanvasVisuals(track);
+  if (hasCanvasVisuals) {
+    dockStrudelVisualCanvases(windowId, track);
+    window.setTimeout(() => dockStrudelVisualCanvases(windowId, track), 120);
+    window.setTimeout(() => dockStrudelVisualCanvases(windowId, track), 550);
+    window.setTimeout(() => dockStrudelVisualCanvases(windowId, track), 1200);
+  }
+  if (track && !hasEmbeddedHydra && !playbackPrimed.has(windowId)) {
+    playbackPrimed.add(windowId);
+    window.setTimeout(async () => {
+      if (!playerState.get(windowId)?.playing) return;
+      const activeRepl = replRegistry.get(windowId);
+      const activeEditor = activeRepl?.editor;
+      if (!activeEditor?.repl?.evaluate) return;
+      try {
+        await Promise.resolve(activeEditor.repl.evaluate(getCompatRuntimeCode(track, false), true, false));
+      } catch {
+        // no-op
+      }
+    }, 900);
+  }
 }
 
 function stopEditorSafely(editor) {
   if (!editor) return false;
+  let stopped = false;
+
   if (typeof editor.stop === "function") {
-    editor.stop();
-    return true;
+    try {
+      editor.stop();
+      stopped = true;
+    } catch {
+      // no-op
+    }
   }
+
   if (typeof editor.hush === "function") {
-    editor.hush();
-    return true;
+    try {
+      editor.hush();
+      stopped = true;
+    } catch {
+      // no-op
+    }
   }
-  if (typeof editor.setCode === "function" && typeof editor.evaluate === "function") {
-    editor.setCode("$: silence");
-    editor.evaluate();
-    return true;
-  }
-  return false;
+
+  return stopped;
 }
 
 function stopAllEditors() {
@@ -2828,7 +3439,7 @@ function stopAllEditors() {
   return stopped;
 }
 
-function stopTrackWithRetry(windowId, attempts = 6) {
+function stopTrackWithRetry(windowId, attempts = 10) {
   let tryCount = 0;
   const tick = () => {
     tryCount += 1;
@@ -2842,7 +3453,14 @@ function stopTrackWithRetry(windowId, attempts = 6) {
 }
 
 function stopTrack(windowId) {
+  stopInProgress.add(windowId);
   stopTrackWithRetry(windowId);
+  window.setTimeout(() => {
+    stopTrackWithRetry(windowId, 4);
+  }, 180);
+  window.setTimeout(() => {
+    stopInProgress.delete(windowId);
+  }, 1200);
   playerState.set(windowId, { playing: false });
   setPlayerHydraPlayback(windowId, false);
   clearPlaybackRuntime(windowId);
@@ -3184,24 +3802,7 @@ function renderDesktop() {
     if (!reuse) {
       windowsLayer.innerHTML = state.windows
         .filter((windowItem) => !windowItem.minimized)
-        .map(
-          (windowItem) => `
-            <div class="window ${windowItem.className} ${windowItem.maximized ? "window-maximized" : ""}" data-id="${windowItem.id}" style="left:${
-              windowItem.x
-            }px; top:${windowItem.y}px; width:${windowItem.w}px; height:${windowItem.h}px; z-index:${windowItem.z};">
-              <div class="title-bar">
-                <div class="title-bar-text">${windowItem.title}</div>
-                <div class="title-bar-controls">
-                  <button aria-label="Minimize" data-minimize="${windowItem.id}" class="window-control"></button>
-                  <button aria-label="${windowItem.maximized ? "Restore" : "Maximize"}" data-maximize="${windowItem.id}" class="window-control"></button>
-                  <button aria-label="Close" data-close="${windowItem.id}" class="window-control"></button>
-                </div>
-              </div>
-              <div class="window-body">${windowItem.body}</div>
-              ${windowItem.maximized ? "" : `<div class="window-resizer" data-resize="${windowItem.id}"></div>`}
-            </div>
-          `
-        )
+        .map((windowItem) => renderWindowMarkup(windowItem))
         .join("");
     }
   }
@@ -3405,8 +4006,11 @@ function renderDesktop() {
     if (windowItem.kind !== "player") return;
     const track = trackMap.get(windowItem.trackId);
     if (!track) return;
-    mountRepl(windowItem.id, track.strudel_code);
+    mountRepl(windowItem.id, track.strudel_code, track.id);
     mountPlayerHydra(windowItem.id, track.id);
+    if (playerState.get(windowItem.id)?.playing) {
+      dockStrudelVisualCanvases(windowItem.id, track);
+    }
   });
 
   playbackRuntime.forEach((runtime, windowId) => {

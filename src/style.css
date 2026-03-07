@@ -1570,13 +1570,44 @@ button {
   z-index: 2;
   height: 100%;
   min-height: 220px;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .player-repl strudel-editor {
   display: block;
-  width: 100%;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.player-repl .player-repl-host {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.player-repl .player-repl-host .cm-editor {
   height: 100%;
+}
+
+.player-repl .player-repl-host .cm-scroller {
+  height: 100%;
+  max-height: 100%;
+  overflow: auto !important;
+}
+
+.window-player[data-embedded-visuals="1"] .player-glass {
+  display: none;
+}
+
+.window-player[data-embedded-visuals="1"] .player-repl .player-repl-host,
+.window-player[data-embedded-visuals="1"] .player-repl .player-repl-host .cm-editor,
+.window-player[data-embedded-visuals="1"] .player-repl .player-repl-host .cm-scroller,
+.window-player[data-embedded-visuals="1"] .player-repl .player-repl-host .cm-content,
+.window-player[data-embedded-visuals="1"] .player-repl .player-repl-host .cm-gutters {
+  background: transparent !important;
 }
 
 .variant-v1 .library-host {
